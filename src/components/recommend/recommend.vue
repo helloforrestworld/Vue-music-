@@ -1,38 +1,54 @@
 <template>
   <div class="recommend">
-    <div class="recommend-content">
-      <div class="slider-wrapper" v-if="slider.length">
-        <slider>
-          <div v-for="(item,index) in slider" :key="index">
-            <a :href="item.linkUrl">
-              <img :src="item.picUrl">
-            </a>
-          </div>
-        </slider>
+    <scroll class="recommend-content" :data="discList">
+      <div>
+        <div class="slider-wrapper" v-if="slider.length">
+          <slider>
+            <div v-for="(item,index) in slider" :key="index">
+              <a :href="item.linkUrl">
+                <img :src="item.picUrl">
+              </a>
+            </div>
+          </slider>
+        </div>
+        <div class="recommend-list">
+          <h1 class="list-title">热门歌单推荐</h1>
+          <ul>
+            <li class="item" v-for="(item, index) in discList" :key="index">
+              <div class="icon">
+                <img width="60" height="60" :src="item.imgurl">
+              </div>
+              <div class="text">
+                <h2 class="name" v-html="item.creator.name"></h2>
+                <div class="desc" v-html="item.dissname"></div>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
-      <div class="recommend-list">
-        <h1 class="list-title">热门歌单推荐</h1>
-        <ul></ul>
-      </div>
-    </div>
+    </scroll>
   </div>
 </template>
 <script>
-import {getRecommend} from 'api/getRecommend';
+import {getRecommend, getDiscList} from 'api/recommend';
 import {ERR_OK} from 'common/js/config';
-import slider from 'base/slider/slider';
+import Slider from 'base/slider/slider';
+import Scroll from 'base/scroll/scroll';
 export default {
   name: 'recommend',
   data() {
     return {
-      slider: [] // 幻灯片数据
+      slider: [], // 幻灯片数据
+      discList: [] // 歌单数据
     };
   },
   components: {
-    slider
+    Slider,
+    Scroll
   },
   created() {
     this._getRecommend();
+    this._getDiscList();
   },
   methods: {
     _getRecommend() {
@@ -40,6 +56,13 @@ export default {
           if (res.code === ERR_OK) {
             this.slider = res.data.slider;
           }
+      });
+    },
+    _getDiscList() {
+      getDiscList().then((res) => {
+        if (res.code === ERR_OK) {
+          this.discList = res.data.list;
+        };
       });
     }
   }

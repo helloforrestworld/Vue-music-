@@ -20,7 +20,7 @@ export default {
     },
     autoPlay: { // 是否自动播放
       type: Boolean,
-      default: false
+      default: true
     },
     interval: { // 自动播放间隔
       type: Number,
@@ -38,10 +38,27 @@ export default {
       this._setSliderWidth();
       this._initDots();
       this._initSlider();
+      if (this.autoPlay) {
+        this._autoPlay();
+      };
     }, 20);
+    window.addEventListener('resize', () => {
+      if (!this.slider) return;
+      this._setSliderWidth(true);
+      this.slider.refresh();
+    }, false);
+  },
+  activated() {
+    // 缓存后再次进入
+    if (this.autoPlay) {
+      this._autoPlay();
+    };
+  },
+  deactivated() {
+    clearTimeout(this.timer);
   },
   methods: {
-    _setSliderWidth() { // 初始化幻灯片和容器宽度
+    _setSliderWidth(isResize) { // 初始化幻灯片和容器宽度
       this.children = this.$refs.sliderGroup.children;
       let slideWidth = this.$refs.slider.clientWidth;
       let width = 0;
@@ -50,7 +67,7 @@ export default {
         addClass(this.children[i], 'slider-item');
         width += slideWidth;
       };
-      if (this.loop) {
+      if (this.loop && !isResize) {
        width += slideWidth * 2;
       };
       this.$refs.sliderGroup.style.width = width + 'px';
@@ -67,12 +84,22 @@ export default {
           loop: this.loop,
           threshold: 0.3,
           speed: 400
-        },
-        click: true
+        }
       });
       this.slider.on('scrollEnd', () => {
         this.currentPageIndex = this.slider.getCurrentPage().pageX;
+        this._autoPlay();
       });
+      this.slider.on('beforeScrollStart', () => {
+        clearTimeout(this.timer);
+      });
+    },
+    _autoPlay() { // 自动播放
+      if (this.autoPlay) {
+        this.timer = setTimeout(() => {
+          this.slider.next();
+        }, this.interval);
+      };
     }
   }
 };
