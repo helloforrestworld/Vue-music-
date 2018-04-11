@@ -6,7 +6,7 @@
 <script>
 import BScroll from 'better-scroll';
 export default {
-  props:{
+  props: {
     probeType: { // 滚动监听的阈值
       type: Number,
       default: 1

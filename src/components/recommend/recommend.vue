@@ -1,12 +1,12 @@
 <template>
   <div class="recommend">
-    <scroll class="recommend-content" :data="discList">
+    <scroll ref="scroll" class="recommend-content" :data="discList">
       <div>
         <div class="slider-wrapper" v-if="slider.length">
           <slider>
             <div v-for="(item,index) in slider" :key="index">
               <a :href="item.linkUrl">
-                <img :src="item.picUrl">
+                <img @load="loadImage" :src="item.picUrl">
               </a>
             </div>
           </slider>
@@ -16,7 +16,7 @@
           <ul>
             <li class="item" v-for="(item, index) in discList" :key="index">
               <div class="icon">
-                <img width="60" height="60" :src="item.imgurl">
+                <img width="60" height="60" v-lazy="item.imgurl">
               </div>
               <div class="text">
                 <h2 class="name" v-html="item.creator.name"></h2>
@@ -26,6 +26,9 @@
           </ul>
         </div>
       </div>
+      <div class="loading-container" v-show="!discList.length">
+        <loading></loading>
+      </div>
     </scroll>
   </div>
 </template>
@@ -34,6 +37,7 @@ import {getRecommend, getDiscList} from 'api/recommend';
 import {ERR_OK} from 'common/js/config';
 import Slider from 'base/slider/slider';
 import Scroll from 'base/scroll/scroll';
+import Loading from 'base/loading/loading';
 export default {
   name: 'recommend',
   data() {
@@ -43,27 +47,34 @@ export default {
     };
   },
   components: {
-    Slider,
-    Scroll
+    Slider, // 幻灯片组件
+    Scroll, // 滚动列表组件
+    Loading // 加载中gif
   },
   created() {
     this._getRecommend();
     this._getDiscList();
   },
   methods: {
-    _getRecommend() {
+    _getRecommend() { // 获取幻灯片数据
       getRecommend().then((res) => {
           if (res.code === ERR_OK) {
             this.slider = res.data.slider;
           }
       });
     },
-    _getDiscList() {
+    _getDiscList() { // 获取歌单数据
       getDiscList().then((res) => {
         if (res.code === ERR_OK) {
           this.discList = res.data.list;
         };
       });
+    },
+    loadImage() { // 图片渲染后撑开刷新better-scroll
+      if (!this.checkloaded) {
+        this.$refs.scroll.refresh();
+        this.checkloaded = true;
+      };
     }
   }
 };
