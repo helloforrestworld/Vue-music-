@@ -34,7 +34,7 @@
 </template>
 <script>
 import {getRecommend, getDiscList} from 'api/recommend';
-import {ERR_OK} from 'common/js/config';
+import {ERR_OK} from 'api/config';
 import Slider from 'base/slider/slider';
 import Scroll from 'base/scroll/scroll';
 import Loading from 'base/loading/loading';

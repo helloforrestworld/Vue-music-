@@ -9,6 +9,5 @@ export const commonParams = { // 通用的请求参数
 };
 
 export const option = { // Jsonp 选项参数
-  param: 'jsonpCallback',
-  prefix: 'jp'
+  param: 'jsonpCallback'
 };

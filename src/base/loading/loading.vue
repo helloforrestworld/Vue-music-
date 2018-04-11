@@ -12,7 +12,7 @@
         default: '正在载入...'
       }
     }
-  }
+  };
 </script>
 <style scoped lang="less" rel="stylesheet/less">
   @import "~common/less/variable";

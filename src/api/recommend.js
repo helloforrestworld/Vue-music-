@@ -1,5 +1,5 @@
 import jsonp from 'common/js/jsonp';
-import {option, commonParams} from 'common/js/config';
+import {option, commonParams} from 'api/config';
 import axios from 'axios';
 
 export function getRecommend() { // 推荐页面数据获取
