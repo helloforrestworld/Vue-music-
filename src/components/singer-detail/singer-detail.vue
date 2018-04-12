@@ -1,7 +1,7 @@
 <template>
   <transition name="slide">
     <div class="singer-detail">
-      我是singerDetail
+      <music-list :title="singer.name" :bg-image="singer.avatar" :songs="songs"></music-list>
     </div>
   </transition>
 </template>
@@ -11,12 +11,16 @@ import {getSingerDetail} from 'api/singer';
 import {createSong} from 'common/js/songFactory';
 import {processSongsUrl} from 'api/handlesongurl';
 import {ERR_OK} from 'api/config';
+import musicList from 'components/music-list/music-list';
 export default {
   name: 'singer-detail',
   data() {
     return {
       songs: []
     };
+  },
+  components: {
+    musicList
   },
   created() {
     this._getDetail();
@@ -49,15 +53,6 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '~common/less/variable';
-  .singer-detail{
-    position: fixed;
-    z-index: 300;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: @color-background;
-  }
   .slide-enter-active,.slide-leave-active{
     transition: all 0.3s;
   }
