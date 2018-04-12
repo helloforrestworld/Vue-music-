@@ -8,7 +8,8 @@
 <script>
 import {mapGetters} from 'vuex';
 import {getSingerDetail} from 'api/singer';
-import {createSong, processSongsUrl} from 'common/js/songFactory';
+import {createSong} from 'common/js/songFactory';
+import {processSongsUrl} from 'api/handlesongurl';
 import {ERR_OK} from 'api/config';
 export default {
   name: 'singer-detail',
@@ -32,7 +33,6 @@ export default {
         if (res.code === ERR_OK) {
           processSongsUrl(this._normalizeSongs(res.data.list)).then((songs) => {
             this.songs = songs;
-            console.log(this.songs);
           });
         };
       });

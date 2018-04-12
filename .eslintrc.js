@@ -28,6 +28,7 @@ module.exports = {
      semi: ["error", "always"],
      'indent': 0,
      "space-before-function-paren":0,
-     'eol-last':0
+     'eol-last':0,
+     'new-parens': 0
   }
 }
