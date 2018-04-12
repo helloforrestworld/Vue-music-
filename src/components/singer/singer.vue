@@ -1,6 +1,7 @@
 <template>
   <div class="singer" ref="singer">
-    <list-view :data="singers"></list-view>
+    <list-view :data="singers" @selected="selected"></list-view>
+    <router-view></router-view>
   </div>
 </template>
 <script>
@@ -8,6 +9,7 @@ import {getSingerList} from 'api/singer';
 import {ERR_OK} from 'api/config';
 import {SingFactory} from 'common/js/singFactory';
 import ListView from 'base/listview/listview';
+import {mapMutations} from 'vuex';
 export default {
   name: 'singer',
   data() {
@@ -22,6 +24,13 @@ export default {
     ListView
   },
   methods: {
+    selected(singer) {
+      this.$router.push(`/singer/${singer.id}`);
+      this.setSinger(singer);
+    },
+    ...mapMutations({
+      setSinger: 'SET_SINGER'
+    }),
     _getSingerList() {
       getSingerList().then((res) => {
         if (ERR_OK === res.code) {
