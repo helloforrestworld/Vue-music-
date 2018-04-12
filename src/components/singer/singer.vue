@@ -1,12 +1,13 @@
 <template>
-  <div class="singer">
-    我是singer
+  <div class="singer" ref="singer">
+    <list-view :data="singers"></list-view>
   </div>
 </template>
 <script>
 import {getSingerList} from 'api/singer';
 import {ERR_OK} from 'api/config';
 import {SingFactory} from 'common/js/singFactory';
+import ListView from 'base/listview/listview';
 export default {
   name: 'singer',
   data() {
@@ -16,6 +17,9 @@ export default {
   },
   created() {
     this._getSingerList();
+  },
+  components: {
+    ListView
   },
   methods: {
     _getSingerList() {
@@ -73,4 +77,10 @@ export default {
 };
 </script>
 <style lang="less" scoped>
+  .singer{
+    position: fixed;
+    top: 88px;
+    bottom: 0;
+    width: 100%;
+  }
 </style>

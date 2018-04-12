@@ -11,3 +11,12 @@ export function hasClass(el, className) {
   let reg = new RegExp('\\b' + className + '\\b');
   return reg.test(el.className);
 };
+
+export function getData(el, key, val) {
+  key = 'data-' + key;
+  if (val === undefined) {
+    return el.getAttribute(key);
+  } else {
+    el.setAttribute(key, val);
+  };
+};

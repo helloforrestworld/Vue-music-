@@ -18,6 +18,10 @@ export default {
     data: { // 外面用到的数据 用于监听变化 refresh better-scroll
       type: [Array, Object],
       default: null
+    },
+    listenScroll: { // 是否监听滚动
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -36,6 +40,12 @@ export default {
         probeType: this.probeType,
         click: this.click
       });
+      if (this.listenScroll) {
+        let _this = this;
+        this.scroll.on('scroll', (pos) => {
+          _this.$emit('scroll', pos);
+        });
+      };
     },
     enable() {
       this.scroll && this.scroll.enable();
@@ -45,6 +55,12 @@ export default {
     },
     refresh() {
       this.scroll && this.scroll.refresh();
+    },
+    scrollTo() {
+      this.scroll && this.scroll.scrollTo.apply(this.scroll, arguments);
+    },
+    scrollToElement() {
+      this.scroll && this.scroll.scrollToElement.apply(this.scroll, arguments);
     }
   },
   watch: {
