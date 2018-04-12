@@ -4,10 +4,29 @@
       <i class="icon-back" @click="back"></i>
     </div>
     <h1 class="title" v-html="title"></h1>
-    <div class="bg-image" :style="bgStyle" ref="bgImage"></div>
-    <scroll :songs="songs" class="list" ref="list">
+    <div class="bg-image" :style="bgStyle" ref="bgImage">
+      <div class="play-wrapper">
+        <div class="play" v-show="songs.length > 0" ref="playBtn">
+          <i class="icon-play"></i>
+          <span class="text">随机播放全部</span>
+        </div>
+      </div>
+      <div class="filter" ref="filter"></div>
+    </div>
+    <div class="bg-layer" ref="bgLayer"></div>
+    <scroll
+      :songs="songs"
+      class="list"
+      ref="list"
+      :probe-type="probeType"
+      :listen-scroll="listenScroll"
+      @scroll="scroll"
+    >
       <div class="song-list-wrapper">
         <song-list :songs="songs"></song-list>
+      </div>
+      <div class="loading-container" v-show="!songs.length">
+        <loading></loading>
       </div>
     </scroll>
   </div>
@@ -15,6 +34,13 @@
 <script>
 import Scroll from 'base/scroll/scroll';
 import SongList from 'base/song-list/song-list';
+import Loading from 'base/loading/loading';
+import {prefixStyle} from 'common/js/dom';
+
+let transform = prefixStyle('transform');
+let backDrop = prefixStyle('backdrop-filter');
+const TOP_HEIHGT = 40; // title高度
+
 export default {
   name: 'music-list',
   props: {
@@ -32,15 +58,24 @@ export default {
     }
   },
   data() {
-    return {};
+    return {
+      scrollY: -1 // song-list滚动位置
+    };
   },
   components: {
     Scroll,
-    SongList
+    SongList,
+    Loading
+  },
+  created() {
+    // Scroll设置的参数
+    this.probeType = 3;
+    this.listenScroll = true;
   },
   mounted() {
     this.imageHeight = this.$refs.bgImage.clientHeight; // 图片高度
-    this.$refs.list.$el.style.top = this.imageHeight + 'px'; // 根据图片高度设置top
+    this.minTransalteY = -this.imageHeight + TOP_HEIHGT; // bg-layer最小滚动位置
+    this.$refs.list.$el.style.top = this.imageHeight + 'px'; // 根据图片高度设置list的top
   },
   computed: {
     bgStyle() {
@@ -49,7 +84,45 @@ export default {
   },
   methods: {
     back() { // 后退
-      this.$router.push('/singer');
+      this.$router.back();
+    },
+    scroll(pos) { // 监听Scroll派发的滚动事件
+      this.scrollY = pos.y;
+    }
+  },
+  watch: {
+    scrollY(newY) {
+      // 滚动位置发生变化
+      // bg-layer跟随移动
+      let translateY = Math.max(this.minTransalteY, newY);
+      this.$refs.bgLayer.style[transform] = `translate3d(0,${translateY}px,0)`;
+      // 处理滚动到阈值 列表没被遮盖问题
+      let zIndex = 0;
+      let bgImage = this.$refs.bgImage;
+      if (newY < translateY) {
+        zIndex = 10;
+        bgImage.style.paddingTop = 0;
+        bgImage.style.height = TOP_HEIHGT + 'px';
+        this.$refs.playBtn.style.display = 'none';
+      } else {
+        bgImage.style.paddingTop = '';
+        bgImage.style.height = '';
+        this.$refs.playBtn.style.display = '';
+      }
+      // 下拉图片放大
+      let scale = 1;
+      let blur = 0;
+      let percent = Math.abs(newY / this.imageHeight);
+      if (newY > 0) {
+        scale = 1 + percent;
+        zIndex = 10;
+      } else {
+        blur = Math.min(20, 20 * percent);
+      };
+      bgImage.style.zIndex = zIndex;
+      bgImage.style[transform] = `scale(${scale})`;
+      // 上滑图片模糊
+      this.$refs.filter.style[backDrop] = `blur(${blur}px)`;
     }
   }
 };
@@ -144,7 +217,6 @@ export default {
     bottom: 0;
     width: 100%;
     background: @color-background;
-    overflow: hidden;
     .song-list-wrapper{
       padding: 20px 30px;
     }
