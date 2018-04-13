@@ -55,13 +55,13 @@
             <div class="icon i-left">
               <i class="icon-sequence"></i>
             </div>
-            <div class="icon i-left">
+            <div class="icon i-left" @click="prev">
               <i class="icon-prev"></i>
             </div>
-            <div class="icon i-center" @click.stop="togglePlay">
+            <div class="icon i-center" @click="togglePlay">
               <i :class="iconPlay"></i>
             </div>
-            <div class="icon i-right">
+            <div class="icon i-right" @click="next">
               <i class="icon-next"></i>
             </div>
             <div class="icon i-right">
@@ -91,7 +91,7 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio"></audio>
+    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
   </div>
 </template>
 <script>
@@ -104,7 +104,9 @@ let transform = prefixStyle('transform');
 export default {
   name: 'player',
   data() {
-    return {};
+    return {
+      songReady: false
+    };
   },
   computed: {
     iconPlay() {
@@ -120,21 +122,18 @@ export default {
       'fullScreen',
       'playlist',
       'currentSong',
-      'playing'
+      'playing',
+      'currentIndex'
     ])
   },
   watch: {
-    currentSong(newSong) {
+    songReady(newReady) {
+      if (!newReady) return;
       let audio = this.$refs.audio;
-      this.$nextTick(() => {
-        audio.play();
-      });
-    },
-    playing(newPlaying) {
-      let audio = this.$refs.audio;
-      this.$nextTick(() => {
-        this.playing ? audio.play() : audio.pause();
-      });
+      this.playing ? audio.play() : audio.pause();
+      if (this.songReady) {
+        this.songReady = false;
+      };
     }
   },
   methods: {
@@ -184,6 +183,34 @@ export default {
       cdWrapper.style.transition = '';
       cdWrapper.style[transform] = '';
     },
+    togglePlay() {
+      this.songReady = true;
+      this.setPlayingState(!this.playing);
+    },
+    next() {
+      let index = this.currentIndex + 1;
+      if (index === this.playlist.length) {
+        index = 0;
+      };
+      this.setCurrentIndex(index);
+      if (!this.playing) {
+        this.setPlayingState(true);
+      };
+    },
+    prev() {
+      let index = this.currentIndex - 1;
+      if (index === -1) {
+        index = this.playlist.length - 1;
+      };
+      this.setCurrentIndex(index);
+      if (!this.playing) {
+        this.setPlayingState(true);
+      };
+    },
+    ready() {
+      this.songReady = true;
+    },
+    error() {},
     _getPosAndScale() { // 获取cd 到 小cd 的距离和缩放比例
       let paddingLeft = 40;
       let paddingBottom = 30;
@@ -195,12 +222,10 @@ export default {
       let scale = tarWidth / cdWidth;
       return {x, y, scale};
     },
-    togglePlay() {
-      this.setPlayingState(!this.playing);
-    },
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
-      setPlayingState: 'SET_PLAYING_STATE'
+      setPlayingState: 'SET_PLAYING_STATE',
+      setCurrentIndex: 'SET_CURRENT_INDEX'
     })
   },
   components: {
