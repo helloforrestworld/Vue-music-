@@ -1,8 +1,6 @@
 <template>
   <transition name="slide">
-    <div class="singer-detail">
-      <music-list :title="singer.name" :bg-image="singer.avatar" :songs="songs"></music-list>
-    </div>
+    <music-list :title="singer.name" :bg-image="singer.avatar" :songs="songs"></music-list>
   </transition>
 </template>
 <script>
@@ -53,10 +51,10 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '~common/less/variable';
-  .slide-enter-active,.slide-leave-active{
-    transition: all 0.3s;
-  }
-  .slide-enter,.slide-leave-to{
-    transform: translate3d(100%,0,0);
-  }
+.slide-enter-active,.slide-leave-active{
+  transition: all .4s;
+}
+.slide-enter,.slide-leave-to{
+  transform: translate3d(100%,0,0);
+}
 </style>

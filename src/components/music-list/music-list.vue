@@ -23,7 +23,7 @@
       @scroll="scroll"
     >
       <div class="song-list-wrapper">
-        <song-list :songs="songs"></song-list>
+        <song-list @select="selectItem" :songs="songs"></song-list>
       </div>
       <div class="loading-container" v-show="!songs.length">
         <loading></loading>
@@ -36,6 +36,7 @@ import Scroll from 'base/scroll/scroll';
 import SongList from 'base/song-list/song-list';
 import Loading from 'base/loading/loading';
 import {prefixStyle} from 'common/js/dom';
+import {mapActions} from 'vuex';
 
 let transform = prefixStyle('transform');
 let backDrop = prefixStyle('backdrop-filter');
@@ -88,7 +89,16 @@ export default {
     },
     scroll(pos) { // 监听Scroll派发的滚动事件
       this.scrollY = pos.y;
-    }
+    },
+    selectItem(song, index) { // song-list 点击
+      this.selectPlay({ // 播放初始化
+        list: this.songs,
+        index
+      });
+    },
+    ...mapActions([
+      'selectPlay'
+    ])
   },
   watch: {
     scrollY(newY) {
