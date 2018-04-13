@@ -44,13 +44,13 @@
             <span class="dot"></span>
             <span class="dot"></span>
           </div> -->
-          <!-- <div class="progress-wrapper">
-            <span class="time time-l"></span>
+          <div class="progress-wrapper">
+            <span class="time time-l">{{formatTime(currentTime)}}</span>
             <div class="progress-bar-wrapper">
-              <progress-bar></progress-bar>
+              <progress-bar :percent="percent" @percent-change="percentChange"></progress-bar>
             </div>
-            <span class="time time-r"></span>
-          </div> -->
+            <span class="time time-r">{{formatTime(currentSong.duration)}}</span>
+          </div>
           <div class="operators">
             <div class="icon i-left">
               <i class="icon-sequence"></i>
@@ -91,13 +91,20 @@
         </div>
       </div>
     </transition>
-    <audio :src="currentSong.url" ref="audio" @canplay="ready" @error="error"></audio>
+    <audio 
+      :src="currentSong.url"
+      ref="audio"
+      @canplay="ready"
+      @error="error"
+      @timeupdate="updateTime"
+    ></audio>
   </div>
 </template>
 <script>
 import {mapGetters, mapMutations} from 'vuex';
 import animations from 'create-keyframe-animation';
 import Scroll from 'base/scroll/scroll';
+import ProgressBar from 'base/progress-bar/progress-bar';
 import {prefixStyle} from 'common/js/dom';
 let transform = prefixStyle('transform');
 
@@ -105,7 +112,8 @@ export default {
   name: 'player',
   data() {
     return {
-      songReady: false
+      songReady: false,
+      currentTime: 0
     };
   },
   computed: {
@@ -117,6 +125,9 @@ export default {
     },
     rotate() {
       return this.playing ? 'play' : 'play pause';
+    },
+    percent() {
+      return this.currentTime / this.currentSong.duration;
     },
     ...mapGetters([
       'fullScreen',
@@ -210,7 +221,33 @@ export default {
     ready() {
       this.songReady = true;
     },
-    error() {},
+    error() {
+      this.next();
+    },
+    updateTime(e) {
+      this.currentTime = e.srcElement.currentTime;
+    },
+    percentChange(percent) {
+      let audio = this.$refs.audio;
+      audio.currentTime = this.currentSong.duration * percent;
+      if (!this.playing) {
+        this.setPlayingState(true);
+      };
+    },
+    formatTime(time) {
+      time = time | 0;
+      let min = time / 60 | 0;
+      let sec = this._pad(time % 60);
+      return `${min}:${sec}`;
+    },
+    _pad(num, n = 2) {
+      let len = num.toString().length;
+      while (len < n) {
+        num = '0' + num;
+        len++;
+      };
+      return num;
+    },
     _getPosAndScale() { // 获取cd 到 小cd 的距离和缩放比例
       let paddingLeft = 40;
       let paddingBottom = 30;
@@ -229,7 +266,8 @@ export default {
     })
   },
   components: {
-    Scroll
+    Scroll,
+    ProgressBar
   }
 };
 </script>
