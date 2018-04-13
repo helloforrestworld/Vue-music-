@@ -76,7 +76,7 @@ let transform = prefixStyle('transform');
   };
 </script>
 
-<style scoped lang="less" rel="stylesheet/stylus">
+<style scoped lang="less">
   @import "~common/less/variable";
 
   .progress-bar{
