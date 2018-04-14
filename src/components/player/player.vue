@@ -26,8 +26,8 @@
         >
           <div class="middle-l" ref="middleL">
             <div class="cd-wrapper" ref="cdWrapper">
-              <div class="cd" :class="rotate">
-                <img class="image" :src="currentSong.image">
+              <div class="cd" ref="imageWrapper">
+                <img ref="image" :class="rotate" class="image" :src="currentSong.image">
               </div>
             </div>
             <div class="playing-lyric-wrapper">
@@ -86,8 +86,10 @@
     </transition>
     <transition name="mini">
       <div class="mini-player" v-show="!fullScreen" @click="open">
-        <div class="icon">
-          <img :class="rotate" width="40" height="40" :src="currentSong.image">
+        <div class="icon" >
+          <div class="imgWrapper" ref="miniWrapper">
+            <img ref="miniImage" :class="rotate" width="40" height="40" :src="currentSong.image">
+          </div>
         </div>
         <div class="text">
           <h2 class="name" v-html="currentSong.name"></h2>
@@ -144,6 +146,9 @@ export default {
   },
   created() {
     this.touch = {}; // middle部分触控记录
+    // 修复audio移动端bug
+    document.addEventListener('WeixinJSBridgeReady', this.profillMobile, false);
+    document.addEventListener('click', this.profillMobile, false);
   },
   computed: {
     iconPlay() {
@@ -156,7 +161,7 @@ export default {
       return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random';
     },
     rotate() {
-      return this.playing ? 'play' : 'play pause';
+      return this.playing ? 'play' : '';
     },
     percent() {
       return this.currentTime / this.currentSong.duration;
@@ -173,14 +178,16 @@ export default {
   },
   watch: {
     songReady(newReady) {
-      if (!newReady) return;
-      let audio = this.$refs.audio;
-      this.playing ? audio.play() : audio.pause();
-      if (this.songReady) {
-        this.songReady = false;
-      };
+      if (newReady) {
+        this.$nextTick(() => {
+          this.audio.play();
+        });
+      }
     },
     currentSong(newSong) {
+      this.songReady = false;
+      this.audio.src = newSong.url;
+      this.audio.play();
       this.playingLyric = '';
       this.currentLineNum = 0;
       this.currentLyric.stop && this.currentLyric.stop();
@@ -210,9 +217,30 @@ export default {
       } else {
         this.$refs.lyricList.scrollTo(0, 0, 1000);
       }
+    },
+    playing(newPlaying) {
+      newPlaying ? this.audio.play() : this.audio.pause();
+      if (!newPlaying) {
+        if (this.fullScreen) {
+          this.syncWrapperTransform('imageWrapper', 'image');
+        } else {
+          this.syncWrapperTransform('miniWrapper', 'miniImage');
+        }
+      }
     }
   },
   methods: {
+    profillMobile() { // 修复audio移动端bug
+      if (this.audio) return;
+      let audio = document.createElement('audio');
+      audio.addEventListener('canplay', this.ready, false);
+      audio.addEventListener('timeupdate', this.updateTime, false);
+      audio.addEventListener('ended', this.end, false);
+      audio.addEventListener('error', this.error, false);
+      this.audio = audio;
+      document.body.append(audio);
+      document.removeEventListener('click', this.profillMobile, false);
+    },
     lyHandler({lineNum, txt}) { // LyricParse回调
       this.currentLineNum = lineNum;
       this.playingLyric = txt;
@@ -301,11 +329,11 @@ export default {
       cdWrapper.style[transform] = '';
     },
     togglePlay() {
-      this.songReady = true;
       this.setPlayingState(!this.playing);
       this.currentLyric && this.currentLyric.togglePlay();
     },
     next() {
+      if (!this.songReady) return;
       if (this.playlist.length === 1) {
         this.loop();
         return;
@@ -331,6 +359,7 @@ export default {
       this.setPlayMode(mode);
     },
     prev() {
+      if (!this.songReady) return;
       let index = this.currentIndex - 1;
       if (index === -1) {
         index = this.playlist.length - 1;
@@ -348,8 +377,9 @@ export default {
       }
     },
     loop() { // 单曲循环
-      this.$refs.audio.currentTime = 0;
-      this.$refs.audio.play();
+      let audio = this.audio;
+      audio.currentTime = 0;
+      audio.play();
       this.currentLyric && this.currentLyric.seek(0);
     },
     ready() {
@@ -362,13 +392,28 @@ export default {
       this.currentTime = e.srcElement.currentTime;
     },
     percentChange(percent) {
-      let audio = this.$refs.audio;
+      let audio = this.audio;
       let currentTime = this.currentSong.duration * percent;
       audio.currentTime = currentTime;
       if (!this.playing) {
         this.setPlayingState(true);
       };
       this.currentLyric && this.currentLyric.seek(currentTime * 1000);
+    },
+    /**
+     * 计算内层Image的transform，并同步到外层容器
+     * @param wrapper
+     * @param inner
+     */
+    syncWrapperTransform (wrapper, inner) {
+      if (!this.$refs[wrapper]) {
+        return;
+      }
+      let imageWrapper = this.$refs[wrapper];
+      let image = this.$refs[inner];
+      let wTransform = getComputedStyle(imageWrapper)[transform];
+      let iTransform = getComputedStyle(image)[transform];
+      imageWrapper.style[transform] = wTransform === 'none' ? iTransform : iTransform.concat(' ', wTransform);
     },
     formatTime(time) {
       time = time | 0;
@@ -494,22 +539,19 @@ export default {
           .cd{
             width: 100%;
             height: 100%;
-            box-sizing: border-box;
-            border: 10px solid rgba(255, 255, 255, 0.1);
             border-radius: 50%;
-            &.play{
-              animation: rotate 20s linear infinite;
-            }
-            &.pause{
-              animation-play-state: paused;
-            }
             .image{
               position: absolute;
               left: 0;
               top: 0;
               width: 100%;
               height: 100%;
+              box-sizing: border-box;
               border-radius: 50%;
+              border: 10px solid rgba(255, 255, 255, 0.1);
+            }
+            .play{
+              animation: rotate 20s linear infinite;
             }
           }
         }
@@ -659,14 +701,19 @@ export default {
     .icon{
       flex: 0 0 40px;
       width: 40px;
+      height: 40px;
       padding: 0 10px 0 20px;
-      img{
-        border-radius: 50%;
-        &.play{
-          animation: rotate 10s linear infinite;
-        }
-        &.pause{
-          animation-play-state: paused;
+      .imgWrapper{
+        height: 100%;
+        width: 100%;
+        img{
+          border-radius: 50%;
+          &.play{
+            animation: rotate 10s linear infinite;
+          }
+          &.pause{
+            animation-play-state: paused;
+          }
         }
       }
     }
