@@ -104,12 +104,12 @@
       </div>
     </transition>
     <audio 
-      :src="currentSong.url"
       ref="audio"
       @canplay="ready"
       @error="error"
       @timeupdate="updateTime"
       @ended="end"
+      :src="currentSong.url"
     ></audio>
   </div>
 </template>
