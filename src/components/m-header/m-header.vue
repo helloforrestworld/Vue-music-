@@ -1,7 +1,7 @@
 <template>
   <div class="m-header">
     <div class="icon"></div>
-    <h1 class="text">Chicken Music</h1>
+    <h1 class="text">傻风扑母</h1>
   </div>
 </template>
 
