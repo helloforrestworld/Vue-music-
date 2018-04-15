@@ -23,8 +23,6 @@
 <style scoped lang="less" rel="stylesheet/less">
   @import "~common/less/variable";
   .tab{
-    position: relative;
-    z-index: 50;
     display: flex;
     height: 44px;
     line-height: 44px;

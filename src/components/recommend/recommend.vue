@@ -14,7 +14,7 @@
         <div class="recommend-list">
           <h1 class="list-title">热门歌单推荐</h1>
           <ul>
-            <li class="item" v-for="(item, index) in discList" :key="index">
+            <li @click="selectItem(item)" class="item" v-for="(item, index) in discList" :key="index">
               <div class="icon">
                 <img width="60" height="60" v-lazy="item.imgurl">
               </div>
@@ -30,6 +30,7 @@
         <loading></loading>
       </div>
     </scroll>
+    <router-view></router-view>
   </div>
 </template>
 <script>
@@ -39,6 +40,7 @@ import Slider from 'base/slider/slider';
 import Scroll from 'base/scroll/scroll';
 import Loading from 'base/loading/loading';
 import {playlistMixin} from 'common/js/mixin';
+import {mapMutations} from 'vuex';
 export default {
   name: 'recommend',
   mixins: [playlistMixin],
@@ -59,10 +61,15 @@ export default {
   },
   methods: {
     playlistHandler(playlist) { // 迷你播放器弹出后 列表位置调整
+      this.$refs.scroll.$el.style.height = '';
       let deHeight = playlist.length > 0 ? 30 : 0;
       let elHeight = window.getComputedStyle(this.$refs.scroll.$el).height;
       this.$refs.scroll.$el.style.height = parseFloat(elHeight) - deHeight + 'px';
       this.$refs.scroll.refresh();
+    },
+    selectItem(item) {
+      this.setDisc(item);
+      this.$router.push(`recommend/${item.dissid}`);
     },
     _getRecommend() { // 获取幻灯片数据
       getRecommend().then((res) => {
@@ -83,7 +90,10 @@ export default {
         this.$refs.scroll.refresh();
         this.checkloaded = true;
       };
-    }
+    },
+    ...mapMutations({
+      setDisc: 'SET_DISC'
+    })
   }
 };
 </script>

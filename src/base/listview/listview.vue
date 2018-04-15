@@ -119,6 +119,7 @@ export default {
   },
   methods: {
     playlistHandler(playlist) { // 迷你播放器弹出后 列表位置调整
+      this.$refs.listview.$el.style.height = '';
       let deHeight = playlist.length > 0 ? 30 : 0;
       let elHeight = window.getComputedStyle(this.$refs.listview.$el).height;
       this.$refs.listview.$el.style.height = parseFloat(elHeight) - deHeight + 'px';
