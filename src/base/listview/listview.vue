@@ -37,11 +37,13 @@
 <script>
 import Scroll from 'base/scroll/scroll';
 import Loading from 'base/loading/loading';
+import {playlistMixin} from 'common/js/mixin';
 import {getData} from 'common/js/dom';
 const SHORTCUT_HEIGHT = 18; // 右导航子元素高度
 const FIX_HEIGHT = 30; // 列表头不高度
 export default {
   name: 'list',
+  mixins: [playlistMixin],
   props: {
     data: {
       type: Array,
@@ -116,6 +118,12 @@ export default {
     }
   },
   methods: {
+    playlistHandler(playlist) { // 迷你播放器弹出后 列表位置调整
+      let deHeight = playlist.length > 0 ? 30 : 0;
+      let elHeight = window.getComputedStyle(this.$refs.listview.$el).height;
+      this.$refs.listview.$el.style.height = parseFloat(elHeight) - deHeight + 'px';
+      this.$refs.listview.refresh();
+    },
     onShortcutTouchStart(e) {
       let index = getData(e.target, 'index') | 0;
       let firstTouch = e.changedTouches[0];

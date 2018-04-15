@@ -35,6 +35,7 @@
 import Scroll from 'base/scroll/scroll';
 import SongList from 'base/song-list/song-list';
 import Loading from 'base/loading/loading';
+import {playlistMixin} from 'common/js/mixin';
 import {prefixStyle} from 'common/js/dom';
 import {mapActions} from 'vuex';
 
@@ -44,6 +45,7 @@ const TOP_HEIHGT = 40; // title高度
 
 export default {
   name: 'music-list',
+  mixins: [playlistMixin],
   props: {
     songs: {
       type: Array,
@@ -100,6 +102,11 @@ export default {
       this.sellAllRondom({
         list: this.songs
       });
+    },
+    playlistHandler(playlist) { // 迷你播放器弹出后 列表位置调整
+      let bottom = playlist.length > 0 ? 60 : 0;
+      this.$refs.list.$el.style.bottom = bottom + 'px';
+      this.$refs.list.refresh();
     },
     ...mapActions([
       'selectPlay',

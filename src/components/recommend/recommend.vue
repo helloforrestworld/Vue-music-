@@ -38,8 +38,10 @@ import {ERR_OK} from 'api/config';
 import Slider from 'base/slider/slider';
 import Scroll from 'base/scroll/scroll';
 import Loading from 'base/loading/loading';
+import {playlistMixin} from 'common/js/mixin';
 export default {
   name: 'recommend',
+  mixins: [playlistMixin],
   data() {
     return {
       slider: [], // 幻灯片数据
@@ -56,6 +58,12 @@ export default {
     this._getDiscList();
   },
   methods: {
+    playlistHandler(playlist) { // 迷你播放器弹出后 列表位置调整
+      let deHeight = playlist.length > 0 ? 30 : 0;
+      let elHeight = window.getComputedStyle(this.$refs.scroll.$el).height;
+      this.$refs.scroll.$el.style.height = parseFloat(elHeight) - deHeight + 'px';
+      this.$refs.scroll.refresh();
+    },
     _getRecommend() { // 获取幻灯片数据
       getRecommend().then((res) => {
           if (res.code === ERR_OK) {
