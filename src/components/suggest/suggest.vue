@@ -1,7 +1,7 @@
 <template>
   <scroll class="suggest" ref="suggest" :data="searchResult" @scrollToEnd="pullupLoad" :pullup="true">
     <ul class="suggest-list">
-      <li class="suggest-item" v-for="(item, index) in searchResult" :key="index">
+      <li @click="selectItem(item)" class="suggest-item" v-for="(item, index) in searchResult" :key="index">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -16,9 +16,12 @@
 <script>
 import {getSearchResult} from 'api/search';
 import {ERR_OK} from 'api/config';
+import {processSongsUrl} from 'api/handlesongurl';
 import {createSong} from 'common/js/songFactory';
 import Loading from 'base/loading/loading';
 import Scroll from 'base/scroll/scroll';
+import {SingFactory} from 'common/js/singFactory';
+import {mapMutations, mapActions} from 'vuex';
 
 const TYPE_SINGER = 'singer';
 const perpage = 20;
@@ -43,15 +46,22 @@ export default {
     };
   },
   methods: {
+    selectItem(item) {
+      let singer = new SingFactory({
+        id: item.singermid,
+        name: item.singername
+      });
+      if (item.type === TYPE_SINGER) { // 点击歌手
+        this.$router.push(`/search/${singer.id}`);
+        this.setSinger(singer);
+      } else {
+        this.insertSong(item); // 点击歌曲
+      };
+    },
     pullupLoad() { // 上滑加载更多
       if (!this.hasMore) return;
       this.page++;
-      getSearchResult(this.query, this.page, this.showSinger, perpage).then((res) => {
-        if (res.code === ERR_OK) {
-          this.searchResult = this.searchResult.concat(this._normalizeSearch(res.data));
-          this._checkMore(res.data);
-        };
-      });
+      this._search();
     },
     getIconCls(item) { // 图标cls
       if (item.type === TYPE_SINGER) {
@@ -71,16 +81,19 @@ export default {
       let song = data.song;
       if (!song.list.length || (song.curpage * perpage >= song.totalnum)) {
         this.hasMore = false;
-      } else {
-        this.hasMore = true;
-      }
+      };
     },
-    _getSearchResult() { // 获取搜索结果
+    _getSearchResult() { // 获取第一次搜索结果
       this.page = 1;
+      this.searchResult = [];
       this.$refs.suggest.scrollTo(0, 0);
+      this.hasMore = true;
+      this._search();
+    },
+    _search() {
       getSearchResult(this.query, this.page, this.showSinger, perpage).then((res) => {
         if (res.code === ERR_OK) {
-          this.searchResult = this._normalizeSearch(res.data);
+          this._normalizeSearch(res.data);
           this._checkMore(res.data);
         };
       });
@@ -91,9 +104,13 @@ export default {
         ret.push({...data.zhida, ...{type: TYPE_SINGER}});
       };
       if (data.song) {
-        ret = ret.concat(this._normalizeSongs(data.song.list));
+        let songlist = this._normalizeSongs(data.song.list);
+        processSongsUrl(songlist).then((res) => { // 获取歌曲url
+          songlist = res;
+          ret = ret.concat(songlist);
+          this.searchResult = this.searchResult.concat(ret);
+        });
       };
-      return ret;
     },
     _normalizeSongs(list) { // 格式化歌曲列表
       let ret = [];
@@ -101,7 +118,13 @@ export default {
         ret.push(createSong(musicData));
       });
       return ret;
-    }
+    },
+    ...mapMutations({
+      'setSinger': 'SET_SINGER'
+    }),
+    ...mapActions([
+      'insertSong'
+    ])
   },
   watch: {
     query() {
