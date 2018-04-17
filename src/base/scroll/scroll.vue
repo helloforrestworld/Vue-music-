@@ -22,6 +22,10 @@ export default {
     listenScroll: { // 是否监听滚动
       type: Boolean,
       default: false
+    },
+    pullup: { // 是否上滑加载
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -44,6 +48,13 @@ export default {
         let _this = this;
         this.scroll.on('scroll', (pos) => {
           _this.$emit('scroll', pos);
+        });
+      };
+      if (this.pullup) {
+        this.scroll.on('scrollEnd', () => {
+          if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+            this.$emit('scrollToEnd');
+          };
         });
       };
     },
