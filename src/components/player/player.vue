@@ -35,7 +35,7 @@
               <div class="playing-lyric">{{playingLyric}}</div>
             </div>
           </div>
-          <scroll class="middle-r" ref="lyricList">
+          <scroll class="middle-r" ref="lyricList" :data="currentLyric">
             <div class="lyric-wrapper">
               <div>
                 <div class="text" v-show="notLyric">纯音乐，请欣赏</div>
@@ -111,7 +111,6 @@
       @error="error"
       @timeupdate="updateTime"
       @ended="end"
-      :src="currentSong.url"
     ></audio>
   </div>
 </template>
@@ -184,7 +183,10 @@ export default {
         });
       }
     },
-    currentSong(newSong) {
+    currentSong(newSong, oldSong) {
+      if (newSong.id === oldSong.id) {
+        return;
+      };
       this.songReady = false;
       this.audio.src = newSong.url;
       this.audio.play();
