@@ -1,19 +1,50 @@
 <template>
   <div class="search">
     <div class="search-box-wrapper">
-      <search-box></search-box>
+      <search-box ref="searchBox"></search-box>
+    </div>
+    <div class="shortcut-wrapper">
+      <div class="shortcut">
+        <div class="hot-key">
+          <h1 class="title">热门搜索</h1>
+          <ul>
+            <li @click="addKey(item.k)" class="item"  v-for="(item, index) in hotKeys" :key="index">
+              {{item.k}}
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 <script>
 import SearchBox from 'base/search-box/search-box';
+import {getHotKey} from 'api/search';
+import {ERR_OK} from 'api/config';
 export default {
   name: 'search',
   data() {
-    return {};
+    return {
+      hotKeys: []
+    };
   },
   components: {
     SearchBox
+  },
+  created() {
+    this._getHotKey();
+  },
+  methods: {
+    addKey(key) { // 点击热门搜索 填充 搜索框
+      this.$refs.searchBox.fillInput(key);
+    },
+    _getHotKey() {
+      getHotKey().then((res) => {
+        if (res.code === ERR_OK) {
+          this.hotKeys = res.data.hotkey.slice(0, 10);
+        };
+      });
+    }
   }
 };
 </script>
@@ -24,6 +55,7 @@ export default {
 .search{
   .search-box-wrapper{
     margin: 20px;
+  }
   .shortcut-wrapper{
     position: fixed;
     top: 178px;
@@ -63,9 +95,10 @@ export default {
           }
           .clear{
             .extend-click();
-            .icon-clear
+            .icon-clear{
               font-size: @font-size-medium;
               color: @color-text-d;
+            }
           }
         }
       }
@@ -78,4 +111,5 @@ export default {
     bottom: 0;
   }
 }
+
 </style>
