@@ -11,9 +11,9 @@
         </div>
         <scroll ref="listContent" class="list-content">
           <transition-group name="list" tag="ul">
-            <li ref="listItem" class="item">
-              <i class="current"></i>
-              <span class="text"></span>
+            <li @click="selectItem(item, index)" ref="listItem" class="item" v-for="(item, index) in sequenceList" :key="index">
+              <i class="current" :class="getCurrentIcon(item)"></i>
+              <span class="text">{{item.name}}</span>
               <span class="like">
                 <i class="icon-not-favorite"></i>
               </span>
@@ -38,6 +38,8 @@
 </template>
 <script>
 import Scroll from 'base/scroll/scroll';
+import {mapGetters, mapMutations} from 'vuex';
+import {playMode} from 'common/js/config';
 export default {
   name: 'playlist',
   data() {
@@ -51,10 +53,55 @@ export default {
   methods: {
     show() {
       this.showFlag = true;
+      setTimeout(() => {
+        this.$refs.listContent.refresh();
+        this.scrollToCurrent();
+      }, 20);
     },
     hide() {
       this.showFlag = false;
+    },
+    getCurrentIcon(item) { // 正在播放歌曲图标
+      if (item.id === this.currentSong.id) {
+        return 'icon-play';
+      };
+      return '';
+    },
+    selectItem(item, index) { // 点击播放歌曲
+      if (this.mode === playMode.random) {
+        index = this.playlist.findIndex((listItem) => {
+          return item.id === listItem.id;
+        });
+      };
+      this.setCurrentIndex(index);
+      this.setPlayingState(true);
+    },
+    scrollToCurrent() { // 滚动到正在播放的歌曲位置
+      let index = this.sequenceList.findIndex((item) => {
+        return item.id === this.currentSong.id;
+      });
+      this.$refs.listContent.scrollToElement(this.$refs.listItem[index], 300);
+    },
+    ...mapMutations({
+      setCurrentIndex: 'SET_CURRENT_INDEX',
+      setPlayingState: 'SET_PLAYING_STATE'
+    })
+  },
+  watch: {
+    currentSong(newSong, oldSong) {
+      if (!this.showFlag || newSong.id === oldSong.id) {
+        return;
+      };
+      this.scrollToCurrent();
     }
+  },
+  computed: {
+    ...mapGetters([
+      'sequenceList',
+      'currentSong',
+      'playlist',
+      'mode'
+    ])
   }
 };
 </script>
