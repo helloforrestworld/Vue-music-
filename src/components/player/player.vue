@@ -100,11 +100,12 @@
             <i class="icon-mini" :class="mIconPlay"></i>
           </progress-circle>
         </div>
-        <div class="control">
+        <div class="control" @click.stop="showPlaylist">
           <i class="icon-playlist"></i>
         </div>
       </div>
     </transition>
+    <playlist ref="playlist"></playlist>
     <audio 
       ref="audio"
       @canplay="ready"
@@ -126,6 +127,7 @@ import {shuffle} from 'common/js/utils';
 import {getLyric} from 'api/getLyric';
 import LyricParse from 'lyric-parser';
 import {Base64} from 'js-base64';
+import Playlist from 'components/playlist/playlist';
 let transform = prefixStyle('transform');
 let transitionDuration = prefixStyle('transitionDuration');
 
@@ -402,6 +404,9 @@ export default {
       };
       this.currentLyric && this.currentLyric.seek(currentTime * 1000);
     },
+    showPlaylist() { // 显示播放列表
+      this.$refs.playlist.show();
+    },
     /**
      * 计算内层Image的transform，并同步到外层容器
      * @param wrapper
@@ -459,7 +464,8 @@ export default {
   components: {
     Scroll,
     ProgressBar,
-    ProgressCircle
+    ProgressCircle,
+    Playlist
   }
 };
 </script>
@@ -745,6 +751,10 @@ export default {
       .icon-play-mini, .icon-pause-mini, .icon-playlist{
         font-size: 30px;
         color: @color-theme-d;
+      }
+      .icon-playlist{
+        display: inline-block;
+        margin-top: -4px;
       }
       .icon-mini{
         font-size: 32px;
