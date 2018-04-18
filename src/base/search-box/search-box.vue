@@ -1,11 +1,12 @@
 <template>
   <div class="search-box">
     <i class="icon-search"></i>
-    <input v-model="query" class="box" :placeholder="placeholder">
+    <input ref="input" v-model="query" class="box" :placeholder="placeholder">
     <i @click="clear" class="icon-dismiss" v-show="query"></i>
   </div>
 </template>
 <script>
+import {debounce} from 'common/js/utils';
 export default {
   name: 'search-box',
   data() {
@@ -25,12 +26,15 @@ export default {
     },
     clear() {
       this.query = '';
+    },
+    blur() {
+      this.$refs.input.blur();
     }
   },
   created() {
-    this.$watch('query', (newQuery) => { // query变化 派发query事件 
+    this.$watch('query', debounce((newQuery) => { // query变化 派发query事件 
       this.$emit('query', newQuery);
-    });
+    }, 200));
   }
 };
 </script>

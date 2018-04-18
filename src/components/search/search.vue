@@ -13,10 +13,19 @@
             </li>
           </ul>
         </div>
+        <div class="search-history" v-show="searchHistory.length">
+          <h1 class="title">
+            <span class="text">搜索历史</span>
+            <span class="clear">
+              <i class="icon-clear"></i>
+            </span>
+          </h1>
+          <search-list :searches="searchHistory"></search-list>
+        </div>
       </div>
     </div>
     <div class="search-result" v-show="query">
-      <suggest :query="query" :showSinger="true"></suggest>
+      <suggest @select="saveSearch" @listScrollBefore="blurInput" :query="query" :showSinger="true"></suggest>
     </div>
     <router-view></router-view>
   </div>
@@ -26,6 +35,8 @@ import SearchBox from 'base/search-box/search-box';
 import {getHotKey} from 'api/search';
 import {ERR_OK} from 'api/config';
 import Suggest from 'components/suggest/suggest';
+import SearchList from 'base/search-list/search-list';
+import {mapActions, mapGetters} from 'vuex';
 
 export default {
   name: 'search',
@@ -37,17 +48,27 @@ export default {
   },
   components: {
     SearchBox,
-    Suggest
+    Suggest,
+    SearchList
   },
   created() {
     this._getHotKey();
   },
+  computed: {
+    ...mapGetters(['searchHistory'])
+  },
   methods: {
+    saveSearch() { // 保存搜索历史
+      this.saveSearchHistory(this.query);
+    },
     onQueryChange(query) { // 搜索框query变化
       this.query = query;
     },
     addKey(key) { // 点击热门搜索 填充 搜索框
       this.$refs.searchBox.fillInput(key);
+    },
+    blurInput() { // 滚动前搜索框失去焦点 收起键盘
+      this.$refs.searchBox.blur();
     },
     _getHotKey() {
       getHotKey().then((res) => {
@@ -55,7 +76,8 @@ export default {
           this.hotKeys = res.data.hotkey.slice(0, 10);
         };
       });
-    }
+    },
+    ...mapActions(['saveSearchHistory'])
   }
 };
 </script>

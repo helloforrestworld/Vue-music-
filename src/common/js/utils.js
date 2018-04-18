@@ -11,3 +11,15 @@ export function shuffle(arr) { // 随机打乱数组
   };
   return _arr;
 };
+
+export function debounce(fn, delay) { // 截流函数
+  let timer;
+  return function(...args) {
+    if (timer) {
+      clearTimeout(timer);
+    };
+    timer = setTimeout(() => {
+      fn.apply(this, args);
+    }, delay);
+  };
+};

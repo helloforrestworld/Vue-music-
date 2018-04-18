@@ -26,6 +26,10 @@ export default {
     pullup: { // 是否上滑加载
       type: Boolean,
       default: false
+    },
+    scrollBefore: { // 监听滚动开始前
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -57,6 +61,11 @@ export default {
           };
         });
       };
+      if (this.scrollBefore) {
+        this.scroll.on('beforeScrollStart', () => {
+          this.$emit('scrollBefore');
+        });
+      }
     },
     enable() {
       this.scroll && this.scroll.enable();

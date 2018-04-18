@@ -1,5 +1,5 @@
 <template>
-  <scroll class="suggest" ref="suggest" :data="searchResult" @scrollToEnd="pullupLoad" :pullup="true">
+  <scroll @scrollBefore="scrollBefore" class="suggest" ref="suggest" :data="searchResult" @scrollToEnd="pullupLoad" :pullup="true" :scrollBefore="true">
     <ul class="suggest-list">
       <li @click="selectItem(item)" class="suggest-item" v-for="(item, index) in searchResult" :key="index">
         <div class="icon">
@@ -11,6 +11,9 @@
       </li>
       <loading v-show="hasMore" title=""></loading>
     </ul>
+    <div class="no-result-wrapper" v-show="!hasMore && !searchResult.length">
+      <no-result title="抱歉，暂无搜索结果"></no-result>
+    </div>
   </scroll>
 </template>
 <script>
@@ -20,6 +23,7 @@ import {processSongsUrl} from 'api/handlesongurl';
 import {createSong} from 'common/js/songFactory';
 import Loading from 'base/loading/loading';
 import Scroll from 'base/scroll/scroll';
+import NoResult from 'base/no-result/no-result';
 import {SingFactory} from 'common/js/singFactory';
 import {mapMutations, mapActions} from 'vuex';
 
@@ -57,6 +61,7 @@ export default {
       } else {
         this.insertSong(item); // 点击歌曲
       };
+      this.$emit('select');
     },
     pullupLoad() { // 上滑加载更多
       if (!this.hasMore) return;
@@ -77,6 +82,9 @@ export default {
         return `${item.name}-${item.singer}`;
       }
     },
+    scrollBefore() { // 列表滚动前
+      this.$emit('listScrollBefore');
+    },
     _checkMore(data) { // 是否还有更多数据
       let song = data.song;
       if (!song.list.length || (song.curpage * perpage >= song.totalnum)) {
@@ -94,7 +102,6 @@ export default {
       getSearchResult(this.query, this.page, this.showSinger, perpage).then((res) => {
         if (res.code === ERR_OK) {
           this._normalizeSearch(res.data);
-          this._checkMore(res.data);
         };
       });
     },
@@ -109,6 +116,7 @@ export default {
           songlist = res;
           ret = ret.concat(songlist);
           this.searchResult = this.searchResult.concat(ret);
+          this._checkMore(data);
         });
       };
     },
@@ -133,7 +141,8 @@ export default {
   },
   components: {
     Loading,
-    Scroll
+    Scroll,
+    NoResult
   }
 };
 </script>

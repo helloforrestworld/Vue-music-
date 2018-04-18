@@ -122,7 +122,7 @@ import ProgressBar from 'base/progress-bar/progress-bar';
 import ProgressCircle from 'base/progress-circle/progress-circle';
 import {prefixStyle} from 'common/js/dom';
 import {playMode} from 'common/js/config';
-import {shuffle} from 'common/js/shuffle';
+import {shuffle} from 'common/js/utils';
 import {getLyric} from 'api/getLyric';
 import LyricParse from 'lyric-parser';
 import {Base64} from 'js-base64';
