@@ -16,11 +16,11 @@
         <div class="search-history" v-show="searchHistory.length">
           <h1 class="title">
             <span class="text">搜索历史</span>
-            <span class="clear">
+            <span class="clear" @click="clearSearch">
               <i class="icon-clear"></i>
             </span>
           </h1>
-          <search-list :searches="searchHistory"></search-list>
+          <search-list @delete="deleteOneSearch" @select="addKey" :searches="searchHistory"></search-list>
         </div>
       </div>
     </div>
@@ -58,26 +58,36 @@ export default {
     ...mapGetters(['searchHistory'])
   },
   methods: {
+    deleteOneSearch(item) { // 删除某条搜索记录
+      this.deleteSearchHistory(item);
+    },
     saveSearch() { // 保存搜索历史
       this.saveSearchHistory(this.query);
+    },
+    clearSearch() { // 清空搜索历史
+      this.clearSearchHistory();
     },
     onQueryChange(query) { // 搜索框query变化
       this.query = query;
     },
-    addKey(key) { // 点击热门搜索 填充 搜索框
+    addKey(key) { // 填充 搜索框
       this.$refs.searchBox.fillInput(key);
     },
     blurInput() { // 滚动前搜索框失去焦点 收起键盘
       this.$refs.searchBox.blur();
     },
-    _getHotKey() {
+    _getHotKey() { // 获取热搜词
       getHotKey().then((res) => {
         if (res.code === ERR_OK) {
           this.hotKeys = res.data.hotkey.slice(0, 10);
         };
       });
     },
-    ...mapActions(['saveSearchHistory'])
+    ...mapActions([
+      'saveSearchHistory',
+      'deleteSearchHistory',
+      'clearSearchHistory'
+    ])
   }
 };
 </script>

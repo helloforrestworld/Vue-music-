@@ -44,6 +44,14 @@ function insertArray(arr, value, compare, maxLen) {
   };
 };
 
+// 从数组里面删除一个
+function deleteFromArray(arr, value, compare) {
+  let findIndex = arr.findIndex(compare);
+  if (findIndex > -1) {
+    arr.splice(findIndex, 1);
+  };
+}
+
 // 保存搜索历史
 export function saveSearch(value) {
   let ret = loadLoadcal({
@@ -69,4 +77,33 @@ export function loadSearch() {
     id: 'searchHistory',
     def: []
   });
+};
+
+// 删除某条搜索历史
+export function deleteSearch(value) {
+  let ret = loadLoadcal({
+    module: 'chickmusic',
+    id: 'searchHistory',
+    def: []
+  });
+  deleteFromArray(ret, value, (item) => {
+    return item === value;
+  });
+  saveLoadcal({
+    module: 'chickmusic',
+    id: 'searchHistory',
+    value: ret
+  });
+  return ret;
+};
+
+// 清空搜索历史
+export function clearSearch() {
+  let ret = [];
+  saveLoadcal({
+    module: 'chickmusic',
+    id: 'searchHistory',
+    value: ret
+  });
+  return ret;
 };

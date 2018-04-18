@@ -1,9 +1,9 @@
 <template>
   <div class="search-list" v-show="searches.length">
     <ul>
-      <li class="search-item" v-for="(item, index) in searches" :key="index">
+      <li @click="select(item)" class="search-item" v-for="(item, index) in searches" :key="index">
         <span class="text">{{item}}</span>
-        <span class="icon">
+        <span class="icon" @click.stop="deleteOne(item)">
           <i class="icon-delete"></i>
         </span>
       </li>
@@ -19,7 +19,14 @@
         default: () => []
       }
     },
-    methods: {}
+    methods: {
+      deleteOne(item) {
+        this.$emit('delete', item);
+      },
+      select(item) {
+        this.$emit('select', item);
+      }
+    }
   };
 </script>
 
