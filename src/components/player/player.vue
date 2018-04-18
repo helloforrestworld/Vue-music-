@@ -186,7 +186,7 @@ export default {
       }
     },
     currentSong(newSong, oldSong) {
-      if (newSong.id === oldSong.id) {
+      if (!newSong.id || newSong.id === oldSong.id) {
         return;
       };
       this.songReady = false;
