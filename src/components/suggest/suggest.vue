@@ -85,6 +85,9 @@ export default {
     scrollBefore() { // 列表滚动前
       this.$emit('listScrollBefore');
     },
+    refresh() {
+      this.$refs.suggest.refresh();
+    },
     _checkMore(data) { // 是否还有更多数据
       let song = data.song;
       if (!song.list.length || (song.curpage * perpage >= song.totalnum)) {
