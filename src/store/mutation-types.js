@@ -19,3 +19,5 @@ export const SET_TOP = 'SET_TOP';
 export const SET_SEARCH_HISTORY = 'SET_SEARCH_HISTORY';
 
 export const SET_PLAY_HISTORY = 'SET_PLAY_HISTORY';
+
+export const SET_FAVORITELIST = 'SET_FAVORITELIST';
