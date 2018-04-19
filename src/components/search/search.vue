@@ -4,7 +4,7 @@
       <search-box ref="searchBox" @query="onQueryChange"></search-box>
     </div>
     <div class="shortcut-wrapper" v-show="!query" ref="shortcutWrapper">
-      <scroll :data="shortcut" class="shortcut" ref="shortcut">
+      <scroll :data="shortcut" class="shortcut" ref="shortcut" :refreshDelay="100">
         <div>
           <div class="hot-key">
             <h1 class="title">热门搜索</h1>
@@ -41,16 +41,17 @@ import Suggest from 'components/suggest/suggest';
 import SearchList from 'base/search-list/search-list';
 import Confirm from 'base/confirm/confirm';
 import Scroll from 'base/scroll/scroll';
-import {mapActions, mapGetters} from 'vuex';
-import {playlistMixin} from 'common/js/mixin';
+import {mapActions} from 'vuex';
+import {playlistMixin, searchMixin} from 'common/js/mixin';
+
+// searchMixin 与 add-song公用的js
 
 export default {
   name: 'search',
-  mixins: [playlistMixin],
+  mixins: [playlistMixin, searchMixin],
   data() {
     return {
-      hotKeys: [],
-      query: ''
+      hotKeys: [] // 热搜词
     };
   },
   components: {
@@ -66,8 +67,7 @@ export default {
   computed: {
     shortcut() { // 合并hotkey 和 history数据 用于scroll组件更新高度
       return this.hotKeys.concat(this.searchHistory);
-    },
-    ...mapGetters(['searchHistory'])
+    }
   },
   watch: {
     query(newQuery) { // 用于scroll组件更新高度
@@ -79,33 +79,18 @@ export default {
     }
   },
   methods: {
-    playlistHandler(playlist) {
+    playlistHandler(playlist) { // 调整迷离播放器出现后 列表高度
       let bottom = playlist.length > 0 ? 60 : 0;
       this.$refs.shortcutWrapper.style.bottom = bottom + 'px';
       this.$refs.shortcut.refresh();
       this.$refs.searchResult.style.bottom = bottom + 'px';
       this.$refs.suggest.refresh();
     },
-    deleteOneSearch(item) { // 删除某条搜索记录
-      this.deleteSearchHistory(item);
-    },
-    saveSearch() { // 保存搜索历史
-      this.saveSearchHistory(this.query);
-    },
     showConfirm() { // 弹出对话框
       this.$refs.confirm.show();
     },
     clearSearch() { // 清空搜索历史
       this.clearSearchHistory();
-    },
-    onQueryChange(query) { // 搜索框query变化
-      this.query = query;
-    },
-    addKey(key) { // 填充 搜索框
-      this.$refs.searchBox.fillInput(key);
-    },
-    blurInput() { // 滚动前搜索框失去焦点 收起键盘
-      this.$refs.searchBox.blur();
     },
     _getHotKey() { // 获取热搜词
       getHotKey().then((res) => {
@@ -115,8 +100,6 @@ export default {
       });
     },
     ...mapActions([
-      'saveSearchHistory',
-      'deleteSearchHistory',
       'clearSearchHistory'
     ])
   }

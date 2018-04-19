@@ -21,3 +21,5 @@ export const disc = state => state.disc;
 export const top = state => state.top;
 
 export const searchHistory = state => state.searchHistory;  
+
+export const playHistory = state => state.playHistory;

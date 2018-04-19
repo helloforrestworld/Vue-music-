@@ -30,6 +30,10 @@ export default {
     scrollBefore: { // 监听滚动开始前
       type: Boolean,
       default: false
+    },
+    refreshDelay: { // 刷新延迟(防止元素有动画效果导致高度计算不正确)
+      type: Number,
+      default: 20
     }
   },
   data() {
@@ -87,7 +91,7 @@ export default {
     data() {
       setTimeout(() => {
         this.refresh();
-      }, 20);
+      }, this.refreshDelay);
     }
   }
 };

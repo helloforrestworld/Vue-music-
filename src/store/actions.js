@@ -1,7 +1,7 @@
 import * as types from './mutation-types';
 import {playMode} from 'common/js/config';
 import {shuffle} from 'common/js/utils';
-import {saveSearch, deleteSearch, clearSearch} from 'common/js/cache';
+import {saveSearch, deleteSearch, clearSearch, savePlay} from 'common/js/cache';
 
 export const selectPlay = ({commit, state}, {list, index}) => {
   let playlist = list;
@@ -90,11 +90,20 @@ export const deleteSong = ({commit, state}, song) => {
   commit(types.SET_PLAYLIST, playlist);
   commit(types.SET_CURRENT_INDEX, currentIndex);
   
-  if (playlist.length) {
-    commit(types.SET_PLAYING_STATE, true);
-  } else {
-    commit(types.SET_PLAYING_STATE, false);
-  };
+  let playingState = playlist.length > 0;
+  commit(types.SET_PLAYING_STATE, playingState);
+  commit(types.SET_PLAYING_STATE, playingState);
+};
+
+export const clearPlaylist = ({commit}) => {
+  commit(types.SET_SEQUENCE_LIST, []);
+  commit(types.SET_PLAYLIST, []);
+  commit(types.SET_CURRENT_INDEX, -1);
+  commit(types.SET_PLAYING_STATE, false);
+};
+
+export const savePlayHistory = ({commit}, history) => {
+  commit(types.SET_PLAY_HISTORY, savePlay(history));
 };
 
 function findIndex(list, tar) {

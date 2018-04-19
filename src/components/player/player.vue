@@ -116,23 +116,24 @@
   </div>
 </template>
 <script>
-import {mapGetters, mapMutations} from 'vuex';
+import {mapGetters, mapMutations, mapActions} from 'vuex';
 import animations from 'create-keyframe-animation';
 import Scroll from 'base/scroll/scroll';
 import ProgressBar from 'base/progress-bar/progress-bar';
 import ProgressCircle from 'base/progress-circle/progress-circle';
 import {prefixStyle} from 'common/js/dom';
 import {playMode} from 'common/js/config';
-import {shuffle} from 'common/js/utils';
 import {getLyric} from 'api/getLyric';
 import LyricParse from 'lyric-parser';
 import {Base64} from 'js-base64';
 import Playlist from 'components/playlist/playlist';
+import {playerMixin} from 'common/js/mixin'; // 与playlist公用的js逻辑
 let transform = prefixStyle('transform');
 let transitionDuration = prefixStyle('transitionDuration');
 
 export default {
   name: 'player',
+  mixins: [playerMixin],
   data() {
     return {
       songReady: false,
@@ -158,9 +159,6 @@ export default {
     mIconPlay() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini';
     },
-    iconMode() {
-      return this.mode === playMode.sequence ? 'icon-sequence' : this.mode === playMode.loop ? 'icon-loop' : 'icon-random';
-    },
     rotate() {
       return this.playing ? 'play' : '';
     },
@@ -169,12 +167,10 @@ export default {
     },
     ...mapGetters([
       'fullScreen',
-      'playlist',
-      'sequenceList',
       'currentSong',
       'playing',
       'currentIndex',
-      'mode'
+      'playlist'
     ])
   },
   watch: {
@@ -351,17 +347,6 @@ export default {
         this.setPlayingState(true);
       };
     },
-    changeMode() {
-      let mode = (this.mode + 1) % 3;
-      let list = this.sequenceList;
-      if (mode === playMode.random) {
-        list = shuffle(list);
-      };
-      let index = this.findIndex(list);
-      this.setPlaylist(list);
-      this.setCurrentIndex(index);
-      this.setPlayMode(mode);
-    },
     prev() {
       if (!this.songReady) return;
       let index = this.currentIndex - 1;
@@ -388,6 +373,7 @@ export default {
     },
     ready() {
       this.songReady = true;
+      this.savePlayHistory(this.currentSong); // 存储播放历史
     },
     error() {
       this.next();
@@ -428,12 +414,6 @@ export default {
       let sec = this._pad(time % 60);
       return `${min}:${sec}`;
     },
-    findIndex(list) {
-      let index = list.findIndex((item) => {
-        return this.currentSong.id === item.id;
-      });
-      return index;
-    },
     _pad(num, n = 2) {
       let len = num.toString().length;
       while (len < n) {
@@ -456,10 +436,11 @@ export default {
     ...mapMutations({
       setFullScreen: 'SET_FULL_SCREEN',
       setPlayingState: 'SET_PLAYING_STATE',
-      setCurrentIndex: 'SET_CURRENT_INDEX',
-      setPlayMode: 'SET_PLAY_MODE',
       setPlaylist: 'SET_PLAYLIST'
-    })
+    }),
+    ...mapActions([
+      'savePlayHistory'
+    ])
   },
   components: {
     Scroll,

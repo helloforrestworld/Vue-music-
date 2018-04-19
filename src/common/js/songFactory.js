@@ -25,7 +25,7 @@ export function createSong(musicData) {
 };
 
 function _normalizeSinger(singer) {
-  if (!singer) return;
+  if (!singer || !Array.isArray(singer)) return;
   let ret = [];
   singer.forEach((item) => {
     ret.push(item.name);
