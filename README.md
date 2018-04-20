@@ -1,6 +1,6 @@
-# vue-music
+﻿# vue-music
 
-> 仿QQ音乐
+> Vue全家桶音乐播放器
 
 ## Build Setup
 
