@@ -77,8 +77,8 @@
             <div class="icon i-right" @click="next">
               <i class="icon-next"></i>
             </div>
-            <div class="icon i-right">
-              <i class="icon icon-not-favorite"></i>
+            <div class="icon i-right" @click="toggleFavorite(currentSong)">
+              <i class="icon" :class="getFavoriteIcon(currentSong)"></i>
             </div>
           </div>
         </div>
@@ -188,6 +188,12 @@ export default {
       this.songReady = false;
       this.audio.src = newSong.url;
       this.audio.play();
+      clearTimeout(this.timer);
+      this.timer = setTimeout(() => {
+        if (!this.songReady) {
+          this.songReady = true;
+        };
+      }, 5000);
       this.playingLyric = '';
       this.currentLineNum = 0;
       this.currentLyric.stop && this.currentLyric.stop();
@@ -330,7 +336,7 @@ export default {
     },
     togglePlay() {
       this.setPlayingState(!this.playing);
-      this.currentLyric && this.currentLyric.togglePlay();
+      this.currentLyric && this.currentLyric.togglePlay && this.currentLyric.togglePlay();
     },
     next() {
       if (!this.songReady) return;

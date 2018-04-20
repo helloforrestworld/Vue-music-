@@ -16,7 +16,7 @@ export const selectPlay = ({commit, state}, {list, index}) => {
   commit(types.SET_PLAYING_STATE, true);
 };
 
-export const sellAllRondom = ({commit}, {list}) => {
+export const selectAllRandom = ({commit}, {list}) => { // 随机播放全部
   commit(types.SET_PLAY_MODE, playMode.random);
   commit(types.SET_SEQUENCE_LIST, list);
   commit(types.SET_PLAYLIST, shuffle(list));

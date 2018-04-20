@@ -103,7 +103,7 @@ export default {
       });
     },
     randomAll() { // 随机播放全部
-      this.sellAllRondom({
+      this.selectAllRandom({
         list: this.songs
       });
     },
@@ -114,7 +114,7 @@ export default {
     },
     ...mapActions([
       'selectPlay',
-      'sellAllRondom'
+      'selectAllRandom'
     ])
   },
   watch: {
