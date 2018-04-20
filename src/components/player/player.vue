@@ -336,7 +336,11 @@ export default {
     },
     togglePlay() {
       this.setPlayingState(!this.playing);
-      this.currentLyric && this.currentLyric.togglePlay && this.currentLyric.togglePlay();
+      if (this.playing) {
+        this.currentLyric && this.currentLyric.togglePlay && this.currentLyric.play();
+      } else {
+        this.currentLyric && this.currentLyric.togglePlay && this.currentLyric.stop();
+      }
     },
     next() {
       if (!this.songReady) return;
@@ -355,6 +359,10 @@ export default {
     },
     prev() {
       if (!this.songReady) return;
+      if (this.playlist.length === 1) {
+        this.loop();
+        return;
+      };
       let index = this.currentIndex - 1;
       if (index === -1) {
         index = this.playlist.length - 1;
@@ -376,6 +384,9 @@ export default {
       audio.currentTime = 0;
       audio.play();
       this.currentLyric && this.currentLyric.seek(0);
+      if (!this.playing) {
+        this.setPlayingState(true);
+      };
     },
     ready() {
       this.songReady = true;
