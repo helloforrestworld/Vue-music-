@@ -74,7 +74,7 @@
       switchItem(index) { // 切换switch
         this.currentIndex = index;
       },
-      selectPlay(song) { // 播放历史选择歌曲
+      selectPlay(song) { // 播放最近播放歌曲
         this.insertSong(song);
         this.showTopTip();
       },

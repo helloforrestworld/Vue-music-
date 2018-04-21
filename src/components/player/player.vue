@@ -68,13 +68,13 @@
             <div class="icon i-left" @click="changeMode">
               <i :class="iconMode"></i>
             </div>
-            <div class="icon i-left" @click="prev">
+            <div class="icon i-left" :class="disable" @click="prev">
               <i class="icon-prev"></i>
             </div>
-            <div class="icon i-center" @click="togglePlay">
+            <div class="icon i-center" :class="disable" @click="togglePlay">
               <i :class="iconPlay"></i>
             </div>
-            <div class="icon i-right" @click="next">
+            <div class="icon i-right" :class="disable" @click="next">
               <i class="icon-next"></i>
             </div>
             <div class="icon i-right" @click="toggleFavorite(currentSong)">
@@ -106,6 +106,12 @@
       </div>
     </transition>
     <playlist ref="playlist"></playlist>
+    <top-tip ref="topTip">
+      <div class="tip-title">
+        <i class="icon-ok"></i>
+        <span class="text">歌曲无效</span>
+      </div>
+    </top-tip>
     <audio 
       ref="audio"
       @canplay="ready"
@@ -121,6 +127,7 @@ import animations from 'create-keyframe-animation';
 import Scroll from 'base/scroll/scroll';
 import ProgressBar from 'base/progress-bar/progress-bar';
 import ProgressCircle from 'base/progress-circle/progress-circle';
+import TopTip from 'base/top-tip/top-tip';
 import {prefixStyle} from 'common/js/dom';
 import {playMode} from 'common/js/config';
 import {getLyric} from 'api/getLyric';
@@ -143,7 +150,8 @@ export default {
       currentLineNum: 0,
       currentShow: 'cd',
       playingLyric: '',
-      notLyric: false
+      notLyric: false,
+      songInviald: false
     };
   },
   created() {
@@ -158,6 +166,9 @@ export default {
     },
     mIconPlay() {
       return this.playing ? 'icon-pause-mini' : 'icon-play-mini';
+    },
+    disable() {
+      return !this.songReady ? 'disable' : ''; 
     },
     rotate() {
       return this.playing ? 'play' : '';
@@ -176,8 +187,9 @@ export default {
   watch: {
     songReady(newReady) {
       if (newReady) {
+        if (this.songInviald) return;
         this.$nextTick(() => {
-          this.audio.play();
+          this.playing && this.audio.play();
         });
       }
     },
@@ -185,6 +197,7 @@ export default {
       if (!newSong.id || newSong.id === oldSong.id) {
         return;
       };
+      this.songInviald = false;
       this.songReady = false;
       this.audio.src = newSong.url;
       this.audio.play();
@@ -192,6 +205,9 @@ export default {
       this.timer = setTimeout(() => {
         if (!this.songReady) {
           this.songReady = true;
+          this.setPlayingState(false);
+          this.songInviald = true;
+          this.$refs.topTip.show(); // 播放歌曲无效
         };
       }, 5000);
       this.playingLyric = '';
@@ -202,19 +218,29 @@ export default {
         this.currentLyric = new LyricParse(newSong.lyric, this.lyHandler);
         if (this.playing) {
           this.currentLyric.play();
+          if (this.currentTime > 0) { // 歌词同步
+            this.currentLyric.seek(this.currentTime * 1000);
+          };
         };
         return;
       };
       getLyric(newSong.mid).then((res) => { // 请求歌词并解码
-        this.notLyric = false;
+        if (this.currentSong.id !== newSong.id) { // 保证多次异步请求后歌词正确
+          return;
+        };
         let strLyric = Base64.decode(res);
+        let newLyric = new LyricParse(strLyric, this.lyHandler);
+        this.notLyric = false;
         newSong.lyric = strLyric;
-        this.currentLyric = new LyricParse(strLyric, this.lyHandler);
+        this.currentLyric = newLyric;
         if (this.playing) {
           this.currentLyric.play();
+          if (this.currentTime > 0) { // 歌词同步
+            this.currentLyric.seek(this.currentTime * 1000);
+          };
         };
       }).catch(() => {
-        this.notLyric = true;
+        this.notLyric = true; // 无歌词
       });
     },
     currentLineNum(newNum) {
@@ -243,6 +269,12 @@ export default {
       audio.addEventListener('timeupdate', this.updateTime, false);
       audio.addEventListener('ended', this.end, false);
       audio.addEventListener('error', this.error, false);
+      audio.addEventListener('stalled', function(e) {
+        console.log(e);
+      }, false);
+      audio.addEventListener('readystatechange', function(e) {
+        console.log(e);
+      }, false);
       this.audio = audio;
       document.body.append(audio);
       document.removeEventListener('click', this.profillMobile, false);
@@ -335,11 +367,17 @@ export default {
       cdWrapper.style[transform] = '';
     },
     togglePlay() {
+      if (!this.songReady) return;
+      if (this.songInviald) {
+        this.$refs.topTip.show();
+        return;
+      };
       this.setPlayingState(!this.playing);
       if (this.playing) {
-        this.currentLyric && this.currentLyric.togglePlay && this.currentLyric.play();
+        this.currentLyric && this.currentLyric.play && this.currentLyric.play();
+        this.currentLyric.seek(this.currentTime * 1000);
       } else {
-        this.currentLyric && this.currentLyric.togglePlay && this.currentLyric.stop();
+        this.currentLyric && this.currentLyric.stop && this.currentLyric.stop();
       }
     },
     next() {
@@ -463,7 +501,8 @@ export default {
     Scroll,
     ProgressBar,
     ProgressCircle,
-    Playlist
+    Playlist,
+    TopTip
   }
 };
 </script>
@@ -760,6 +799,20 @@ export default {
         left: 0;
         top: 0;
       }
+    }
+  }
+  .tip-title{
+    text-align: center;
+    padding: 18px 0;
+    font-size: 0;
+    .icon-ok{
+      font-size: @font-size-medium;
+      color: @color-theme;
+      margin-right: 4px;
+    }
+    .text{
+      font-size: @font-size-medium;
+      color: @color-text;
     }
   }
 }

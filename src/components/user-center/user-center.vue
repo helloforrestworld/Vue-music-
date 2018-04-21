@@ -14,12 +14,12 @@
         <div class="list-wrapper" ref="listWrapper">
           <scroll class="list-scroll" v-if="currentIndex === 0" :data="favoriteList" ref="favoriteList">
             <div class="list-inner">
-              <song-list :songs="favoriteList" @select="selectPlay"></song-list>
+              <song-list :songs="favoriteList" @select="selectSong"></song-list>
             </div>
           </scroll>
           <scroll class="list-scroll" v-if="currentIndex === 1" :data="playHistory" ref="playHistory">
             <div class="list-inner">
-              <song-list :songs="playHistory" @select="selectPlay"></song-list>
+              <song-list :songs="playHistory" @select="selectSong"></song-list>
             </div>
           </scroll>
         </div>
@@ -57,8 +57,15 @@ export default {
     switchItem(index) {
       this.currentIndex = index;
     },
-    selectPlay(song) { // 插入一首歌
-      this.insertSong(song);
+    selectSong(song, index) { 
+      if (this.currentIndex === 0) {
+        this.selectPlay({ // 播放整个收藏列表
+          list: this.favoriteList,
+          index
+        });
+        return;
+      };
+      this.insertSong(song); // 插入一首歌
     },
     randomAll() { // 随机播放全部
       let list = this.currentIndex === 0 ? this.favoriteList : this.playHistory;
@@ -69,7 +76,8 @@ export default {
     },
     ...mapActions([
       'insertSong',
-      'selectAllRandom'
+      'selectAllRandom',
+      'selectPlay'
     ])
   },
   components: {
