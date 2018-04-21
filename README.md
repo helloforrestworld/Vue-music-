@@ -23,9 +23,6 @@ npm run build --report
 ## 预览
 ![此处输入图片的描述][1]
 ![此处输入图片的描述][2]
-![此处输入图片的描述][3]
 
-
-  [1]: https://ws1.sinaimg.cn/large/e8323205gy1fqkgfnagbdg20a60idqv9.jpg
-  [2]: https://ws1.sinaimg.cn/large/e8323205gy1fqkgfp4qmeg20a60id1kz.jpg
-  [3]: https://ws1.sinaimg.cn/large/e8323205gy1fqkgfqs2xjg20a60id7wj.jpg
+  [1]: https://ws1.sinaimg.cn/large/e8323205gy1fqkh0trcmog20ri0i0npj.jpg
+  [2]: https://ws1.sinaimg.cn/large/e8323205gy1fqkh0qiziwg20ri0i0u0y.jpg
