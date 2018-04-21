@@ -1,15 +1,47 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 
-import Recommend from 'components/recommend/recommend';
-import DiscDetail from 'components/disc-detail/disc-detail';
-import Singer from 'components/singer/singer';
-import SingerDetail from 'components/singer-detail/singer-detail';
-import Rank from 'components/rank/rank';
-import topDetail from 'components/top-detail/top-detail';
-import Search from 'components/search/search';
-import UserCenter from 'components/user-center/user-center';
 Vue.use(Router);
+const Recommend = (resolve) => {
+  import('components/recommend/recommend').then((module) => {
+    resolve(module);
+  });
+};
+const DiscDetail = (resolve) => {
+  import('components/disc-detail/disc-detail').then((module) => {
+    resolve(module);
+  });
+};
+const Singer = (resolve) => {
+  import('components/singer/singer').then((module) => {
+    resolve(module);
+  });
+};
+const SingerDetail = (resolve) => {
+  import('components/singer-detail/singer-detail').then((module) => {
+    resolve(module);
+  });
+};
+const Rank = (resolve) => {
+  import('components/rank/rank').then((module) => {
+    resolve(module);
+  });
+};
+const topDetail = (resolve) => {
+  import('components/top-detail/top-detail').then((module) => {
+    resolve(module);
+  });
+};
+const Search = (resolve) => {
+  import('components/search/search').then((module) => {
+    resolve(module);
+  });
+};
+const UserCenter = (resolve) => {
+  import('components/user-center/user-center').then((module) => {
+    resolve(module);
+  });
+};
 
 export default new Router({
   mode: 'history',
