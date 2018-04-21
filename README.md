@@ -16,6 +16,16 @@ npm run build
 
 # build for production and view the bundle analyzer report
 npm run build --report
+
+# 切换移动端调试 刷新后滚动正常
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## 预览
+![此处输入图片的描述][1]
+![此处输入图片的描述][2]
+![此处输入图片的描述][3]
+
+
+  [1]: https://ws1.sinaimg.cn/large/e8323205gy1fqkgfnagbdg20a60idqv9.jpg
+  [2]: https://ws1.sinaimg.cn/large/e8323205gy1fqkgfp4qmeg20a60id1kz.jpg
+  [3]: https://ws1.sinaimg.cn/large/e8323205gy1fqkgfqs2xjg20a60id7wj.jpg
