@@ -7,6 +7,11 @@ import 'common/less/index';
 import fastclick from 'fastclick'; // 消除移动端点击延迟
 import VueLazyLoad from 'vue-lazyload';
 
+/* eslint-disable no-unused-vars */
+// import VConsole from 'vconsole';
+// let console1 = new VConsole();
+// 移动端console工具
+
 Vue.config.productionTip = false;
 
 fastclick.attach(document.body);
