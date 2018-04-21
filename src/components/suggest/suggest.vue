@@ -1,7 +1,7 @@
 <template>
   <scroll @scrollBefore="scrollBefore" class="suggest" ref="suggest" :data="searchResult" @scrollToEnd="pullupLoad" :pullup="true" :scrollBefore="true">
     <ul class="suggest-list">
-      <li @click="selectItem(item)" class="suggest-item" v-for="(item, index) in searchResult" :key="index">
+      <li @click="selectItem(item)" class="suggest-item" :class="checkInvaid(item)" v-for="(item, index) in searchResult" :key="index">
         <div class="icon">
           <i :class="getIconCls(item)"></i>
         </div>
@@ -51,6 +51,7 @@ export default {
   },
   methods: {
     selectItem(item) {
+      if (item.inviald) return;
       let singer = new SingFactory({
         id: item.singermid,
         name: item.singername
@@ -87,6 +88,15 @@ export default {
     },
     refresh() {
       this.$refs.suggest.refresh();
+    },
+    checkInvaid(song) { // 检查歌曲URL是否无效
+      if (song.url === 'http://dl.stream.qqmusic.qq.com/') {
+        song.inviald = true;
+        return 'inviald';
+      } else {
+        song.inviald = false;
+        return '';
+      }
     },
     _checkMore(data) { // 是否还有更多数据
       let song = data.song;
@@ -162,6 +172,11 @@ export default {
       display: flex;
       align-items: center;
       padding-bottom: 20px;
+      &.inviald{
+        .name{
+          text-decoration: line-through;
+        }
+      }
       .icon{
         flex: 0 0 30px;
         width: 30px;

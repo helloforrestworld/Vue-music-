@@ -205,11 +205,8 @@ export default {
       this.timer = setTimeout(() => {
         if (!this.songReady) {
           this.songReady = true;
-          this.setPlayingState(false);
-          this.songInviald = true;
-          this.$refs.topTip.show(); // 播放歌曲无效
         };
-      }, 5000);
+      }, 3000);
       this.playingLyric = '';
       this.currentLineNum = 0;
       this.currentLyric.stop && this.currentLyric.stop();
@@ -228,6 +225,7 @@ export default {
         if (this.currentSong.id !== newSong.id) { // 保证多次异步请求后歌词正确
           return;
         };
+        this.currentLyric.stop && this.currentLyric.stop();
         let strLyric = Base64.decode(res);
         let newLyric = new LyricParse(strLyric, this.lyHandler);
         this.notLyric = false;
@@ -269,12 +267,6 @@ export default {
       audio.addEventListener('timeupdate', this.updateTime, false);
       audio.addEventListener('ended', this.end, false);
       audio.addEventListener('error', this.error, false);
-      audio.addEventListener('stalled', function(e) {
-        console.log(e);
-      }, false);
-      audio.addEventListener('readystatechange', function(e) {
-        console.log(e);
-      }, false);
       this.audio = audio;
       document.body.append(audio);
       document.removeEventListener('click', this.profillMobile, false);
@@ -367,11 +359,11 @@ export default {
       cdWrapper.style[transform] = '';
     },
     togglePlay() {
-      if (!this.songReady) return;
       if (this.songInviald) {
         this.$refs.topTip.show();
         return;
       };
+      if (!this.songReady) return;
       this.setPlayingState(!this.playing);
       if (this.playing) {
         this.currentLyric && this.currentLyric.play && this.currentLyric.play();
@@ -418,6 +410,10 @@ export default {
       }
     },
     loop() { // 单曲循环
+      if (this.songInviald) {
+        this.$refs.topTip.show();
+        return;
+      };
       let audio = this.audio;
       audio.currentTime = 0;
       audio.play();
@@ -431,6 +427,13 @@ export default {
       this.savePlayHistory(this.currentSong); // 存储播放历史
     },
     error() {
+      this.songReady = true;
+      this.$refs.topTip.show();
+      this.songInviald = true;
+      if (this.playlist.length === 1) {
+        this.setPlayingState(false);
+        return;
+      };
       this.next();
     },
     updateTime(e) {
