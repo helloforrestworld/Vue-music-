@@ -97,6 +97,42 @@ npm run build --report
 .
 
 ```
+### 总结
+#### 准备工作
+1. icomoon制作字体图标
+2. 基础less
+    > a. 颜色规范
+      b. mixin
+      c. reset
+      d. icon
+3. eslint规则改写
+4. babel-runtime babel-ployfill  // es6一些API polyfill
+5. fastclick
+```
+    import fastclick from 'fastclick'; // 消除移动端点击延迟
+    fastclick.attach(document.body);
+```
+6.. vue-lazyload // 图片懒加载
+```
+    Vue.use(VueLazyLoad, {
+      loading: require('common/image/default.png')
+    });
+```
+7..目录结构
+> src => api base common components router store
+
+8.. webpack配置别名路径
+```
+extensions: ['.js', '.vue', '.json', '.less'],
+    alias: {
+      '@': resolve('src'),
+      'common': resolve('src/common'),
+      'components': resolve('src/components'),
+      'api': resolve('src/api'),
+      'base': resolve('src/base')
+    }
+```
+
   [1]: https://ws1.sinaimg.cn/large/e8323205gy1fqkjptsymkg20qk0hkx6p.jpg
   [2]: https://ws1.sinaimg.cn/large/e8323205gy1fqkknfftvog20qi0hkx6s.jpg
   [3]: https://ws1.sinaimg.cn/large/e8323205gy1fqkkiz79q2g20qi0hkb2a.jpg
