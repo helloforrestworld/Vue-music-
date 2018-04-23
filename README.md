@@ -99,29 +99,30 @@ npm run build --report
 ```
 ### 总结
 #### 准备工作
-1. icomoon制作字体图标
-2. 基础less
+*. icomoon制作字体图标
+*. 基础less
     > a. 颜色规范
       b. mixin
       c. reset
       d. icon
-3. eslint规则改写
-4. babel-runtime babel-ployfill  // es6一些API polyfill
-5. fastclick
+      
+*. eslint规则改写
+*. babel-runtime babel-ployfill  // es6一些API polyfill
+*. fastclick
 ```
     import fastclick from 'fastclick'; // 消除移动端点击延迟
     fastclick.attach(document.body);
 ```
-6.. vue-lazyload // 图片懒加载
+*. vue-lazyload // 图片懒加载
 ```
     Vue.use(VueLazyLoad, {
       loading: require('common/image/default.png')
     });
 ```
-7..目录结构
+*. 目录结构
 > src => api base common components router store
 
-8.. webpack配置别名路径
+*. webpack配置别名路径
 ```
 extensions: ['.js', '.vue', '.json', '.less'],
     alias: {
@@ -131,6 +132,182 @@ extensions: ['.js', '.vue', '.json', '.less'],
       'api': resolve('src/api'),
       'base': resolve('src/base')
     }
+```
+
+#### 知识点
+*. slider基础组件封装
+```
+// 基于better-scroll
+/*
+    props: 
+      1.loop 是否无缝
+      2.autoPlay: 是否自动播放
+      3.interval: 播放间隔
+    slot: 幻灯片内容列表
+    实现:
+      1.初始化slide-item宽度和外层容器宽度,并加上组件内写好的slide-item类名
+      2.初始化better-scroll
+      3.监听scrollEnd通过this.slider.getCurrentPage().pageX 获取当前索引
+      4.自动播放实现: scrollEnd时开始setimeout beforeScrollStart时清除定时器
+      5.组件初始化：mouted时初始化 resize时 重新计算宽度 this.slider.refresh()
+*/
+```
+*. jsonp Promise版封装
+```
+    import originJsonp from 'jsonp'
+    export function jsonp(url, data, options) {
+        url = (url.indexOf('?') < 0 ? '?' : '') + params(data)
+        return new Promise((resolve, reject) => {
+            originJsonp(url, options, (err, data) => {
+                if (err) {
+                    reject(err)
+                } else {
+                    resolve(data)
+                }
+            })
+        })
+    }
+    function params(data) {
+     let ret = ''
+     for (let k in data) {
+        var value = data[k] === undefined ?  '' : data[k]
+        ret +=  `&${k}=${encodeURIComponent(value)}`
+     }
+     return ret.substr(1)
+    }
+```
+*.api处理
+```
+ // qq音乐某些接口可以直接通过jsonp获取
+ // 某些接口做了限制，需要后端代理
+ 
+ 1.普通jsonp
+    export function getRecommend() { // 获取幻灯片数据
+        let url = 'https://c.y.qq.com/musichall/fcgi-bin/fcg_yqqhomepagerecommend.fcg'
+        const data = {
+            g_tk: 1928093487,
+            inCharset: 'utf-8',
+            outCharset: 'utf-8',
+            notice: 0,
+            format: 'jsonp',
+            platform: 'h5',
+            uin: 0,
+            needNewCode: 1
+        }
+        const options = {
+            param: 'jsonpCallback'
+        }
+        return jsonp(url, data, options);
+    }
+ 2.后端代理
+    // 后端
+    app.get('/api/getDiscList', (req, res) => { // 获取歌单信息
+        const url = 'https://c.y.qq.com/splcloud/fcgi-bin/fcg_get_diss_by_tag.fcg';
+        axios.get(url, {
+            header: {
+                referer: 'https://c.y.qq.com',
+                host: 'c.y.qq.com'
+            },
+            params: req.query
+        }).then((response) => {
+            res.json(response.data)
+        }).catch((err) => {
+            console.log(err)
+        })
+    })
+    
+    // 前端
+    export funtion getDiscList() {
+        const data = {
+            platform: 'yqq',
+            hostUin: 0,
+            sin: 0,
+            ein: 29,
+            sortId: 5,
+            needNewCode: 0,
+            categoryId: 10000000,
+            rnd: Math.random(),
+            format: 'json',
+            g_tk: 1928093487,
+            inCharset: 'utf-8',
+            outCharset: 'utf-8',
+            notice: 0
+        }
+        axios.get('/api/getDiscList', {
+            params: data
+        }).then((res) => {
+            return Promise.resolve(res.data)
+        })
+    }
+  
+  3. qq音乐歌曲媒体url 需要 mid处理 然后拼成
+  // 前端
+  // url_mid获取
+  let _uid = ''
+  function genUrlMid(mids, types) {
+      function getUid() {
+          if (_uid) {
+            return _uid;
+          }
+          if (!_uid) {
+            const t = (new Date).getUTCMilliseconds();
+            _uid = '' + Math.round(2147483647 * Math.random()) * t % 1e10;
+          }
+          return _uid
+      }
+      const guid = getUid()
+      return {
+        module: 'vkey.GetVkeyServer',
+        method: 'CgiGetVkey',
+        param: {
+          guid,
+          songmid: mids,
+          songtype: types,
+          uin: '0',
+          loginflag: 0,
+          platform: '23'
+        }
+      }
+  }
+  // 参数mids:[song1.mid, song2.mid, song3.mid....] types[0, 0 ,0, ..song.length]
+  
+  // 获取purl
+  const urlMid = genUrlMid(mids, types);
+  const data = {
+    g_tk: 5381,
+    format: 'json',
+    platform: 'h5',
+    needNewCode: 1,
+    uin: 0,
+    inCharset: 'utf-8',
+    outCharset: 'utf-8',
+    notice: 0
+  }
+  axios.post('/api/getPurlUrl', {
+    comm: data,
+    url_mid: urlMid
+  }).then((res) => {
+    let infos =  res.url_mid.data.midurlinfo;
+    songs.forEach((song, index) => {
+      song.url = `http://dl.stream.qqmusic.qq.com/${info[index].purl}`; // 拼接真正有效的url
+    })
+  })
+  
+ // 后端
+ app.post('/api/getPurlUrl', bodyParser.json(), function (req, res) {
+    const url = 'https://u.y.qq.com/cgi-bin/musicu.fcg'
+    axios.post(url, req.body, {
+      headers: {
+        referer: 'https://y.qq.com/',
+        origin: 'https://y.qq.com',
+        'Content-type': 'application/x-www-form-urlencoded'
+      }
+    }).then((response) => {
+      res.json(response.data)
+    }).catch((e) => {
+      console.log(e)
+    })
+  })
 ```
 
   [1]: https://ws1.sinaimg.cn/large/e8323205gy1fqkjptsymkg20qk0hkx6p.jpg
