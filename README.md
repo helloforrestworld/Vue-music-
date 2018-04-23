@@ -201,9 +201,63 @@ extensions: ['.js', '.vue', '.json', '.less'],
         2.判断currentIndex 获取 当前title
         3.当 height[index] - nowY <= 列表头的高度时  固定的列表头往上偏移
 ```
-*. music-list(歌手/歌单列表)和song-list(music-list子组件)基础组件封装
+*. music-list(歌手/歌单 详情列表)和song-list(music-list子组件)基础组件封装
 ```
-  
+  music-list 实现细节
+    1. bgimage层 因为请求图片是异步的 所以可以height:0 width:100% padding-top：70%预留位置
+    2. list下拉图片放大 上滑覆盖图片 并且有最小值
+       // 监控scrollY变化
+        a. 当scrollY > 0 时 percent = Math.abs(newY / this.imageHeight) scale = 1 + percent;
+        b. bg-layer跟随列表滚动并且滚动的最小值为 -this.imageHeight + TOP_HEIHGT(头部title高度);
+        c. 当bg-layer滚动到阈值时 图片高度缩小至TOP_HEIHGT
+        
+  song-list
+    props: 
+        songs [] 歌曲列表
+        rank： 是否排名 Boolean
+    emit: 
+       this.$emit('select', song, index) 选中一首歌曲
+    
+    实现：
+        1.普通的ul列表
+        2.排行榜页面用到排名
+        3.rank为true显示
+        <div class="rank" v-show="rank">
+          <span :class="getRankCls(index)" v-text="getRankText(index)"></span>
+        </div>
+        4.前三名有奖杯图片
+        5.后面按序号
+```
+*.player(播放器)组件封装
+```
+
+```
+*.css前缀补全函数prefixStyle
+```
+    let eleStyle = document.createElement('div').style;
+    let o = {
+        webkit: 'webkitTransform',
+        Moz: 'MozTransform',
+        O: 'OTransform,
+        ms: 'msTransform,
+        standard: 'transform'
+    }
+    cosnt vendor = (() => {
+        for( let k in o ) {
+            if (eleStyle[o[k]]] !== undefined) {
+                return k
+            }
+        }
+        return false
+    })()
+    
+    function prefixStyle(style) {
+        if (!vendor) return false
+        if (vendor === 'standard') {
+            return style
+        }
+        return vendor + style.substr(0,1).toUpperCase + style.substr(1)
+    }
 ```
 *. jsonp Promise版封装
 ```
