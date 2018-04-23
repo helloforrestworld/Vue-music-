@@ -102,19 +102,18 @@ npm run build --report
 *. icomoon制作字体图标
 *. 基础less
 > a. 颜色规范
-  b. mixin
-  c. reset
-  d. icon
+> b. mixin
+> c. reset
+> d. icon
       
 *. eslint规则改写
 *. babel-runtime babel-ployfill  // es6一些API polyfill
-*. fastclick
 
+*. fastclick
 ```
     import fastclick from 'fastclick'; // 消除移动端点击延迟
     fastclick.attach(document.body);
 ```
-
 *. vue-lazyload // 图片懒加载
 ```
     Vue.use(VueLazyLoad, {
