@@ -90,7 +90,7 @@ export default {
     },
     scrollY(newY) {
       let listHeight = this.listHeight;
-      // 在顶部往上拉
+      // 在顶部往下拉
       if (newY > 0) {
         this.currentIndex = 0;
         return;

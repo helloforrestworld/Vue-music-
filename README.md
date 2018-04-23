@@ -139,7 +139,6 @@ extensions: ['.js', '.vue', '.json', '.less'],
 *. slider基础组件封装
 ```
 // 基于better-scroll
-/*
     props: 
       1.loop 是否无缝
       2.autoPlay: 是否自动播放
@@ -151,7 +150,60 @@ extensions: ['.js', '.vue', '.json', '.less'],
       3.监听scrollEnd通过this.slider.getCurrentPage().pageX 获取当前索引
       4.自动播放实现: scrollEnd时开始setimeout beforeScrollStart时清除定时器
       5.组件初始化：mouted时初始化 resize时 重新计算宽度 this.slider.refresh()
-*/
+```
+*. scroll基础组件封装
+```
+// 基于better-scroll
+    props: 
+      1.probeType 滚动监听的间隔 默认为1 一定时间间隔监听滚动
+      2.click: 是否能点击
+      3.data: 渲染列表的数据 监控数据的变化刷新scroll
+      4.listenScroll:是否监听滚动
+      5.pullup：上滑到底部是否派发事件(上滑加载)
+      6.scrollBefore: 滚动开始前是否派发事件
+      7.refreshDelay: 数据变化 => scroll刷新的时间间隔(防止有过渡动画 自定义刷新时间能正确计算高度)
+      
+    slot: 滚动的整个列表
+    
+    methods:
+      1.refresh
+      2.scrollTo
+      3.scrollToElement
+    emit:
+      1.scroll // 滚动时
+      2.scrollToEnd // 上滑至底部
+      3.scrollBefore // 滚动开始前
+    实现:
+      1.mouted时初始化better-scroll 根据probeType click 进行配置
+      2.根据listenScroll pullup scrollBefore 判断初始化时是否监听scroll的状态
+      3.watch:data变化 按refreshDelay时间刷新scroll
+
+```
+*. listview(歌手列表)基础组件封装
+```
+    // 基于封装的scroll组件
+    // proboType = 3 实时监控滚动位置 左右结构对应
+    
+    emit : 1.select (歌手被点击时)
+    实现：
+        导航关联歌手列表
+        1.shortcut触摸记录位置和当前index 歌手列表滚动到第index个
+        2.shortcut Move的时候 用 当前坐标 - 初始坐标 /  shortcutItem的高度 计算出移动了多少个index
+        3.currentIndex =  disIndex + startIndex 歌手列表滚动到第currentIndex个
+        
+        歌手列表关联导航
+        4.mounted时记录每个列表的高度区间_calculateHeight
+        5.歌手列表滚动监听nowY的变化判断落在哪个区间改变currentIndex
+        
+        细节
+        歌手列表固定的列表头
+        1.绝对定位层
+        2.判断currentIndex 获取 当前title
+        3.当 height[index] - nowY <= 列表头的高度时  固定的列表头往上偏移
+```
+*. music-list(歌手/歌单列表)和song-list(music-list子组件)基础组件封装
+```
+  
 ```
 *. jsonp Promise版封装
 ```
@@ -176,6 +228,18 @@ extensions: ['.js', '.vue', '.json', '.less'],
      }
      return ret.substr(1)
     }
+```
+*.小细节
+```
+    1. 幻灯片图片加载进来后刷新外层scroll
+    <img @load="loadImage" :src="item.picUrl">
+    loadImage() { // 图片渲染后撑开刷新scroll
+      if (!this.checkloaded) {
+        this.$refs.scroll.refresh();
+        this.checkloaded = true;
+      };
+    }
+    2.
 ```
 *.api处理
 ```
