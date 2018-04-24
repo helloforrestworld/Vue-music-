@@ -97,6 +97,8 @@ npm run build --report
 .
 
 ```
+### 组件关系图
+
 ### 总结
 #### 准备工作
 *. icomoon制作字体图标
@@ -382,7 +384,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
         this.checkloaded = true;
       };
     }
-    2.
+    2. better-scroll需要在宽高变化时refresh
 ```
 *.api处理
 ```
@@ -517,6 +519,8 @@ extensions: ['.js', '.vue', '.json', '.less'],
     })
   })
 ```
+### 参考
+> 慕课网黄佚老师Vue Music App
 
   [1]: https://ws1.sinaimg.cn/large/e8323205gy1fqkjptsymkg20qk0hkx6p.jpg
   [2]: https://ws1.sinaimg.cn/large/e8323205gy1fqkknfftvog20qi0hkx6s.jpg
