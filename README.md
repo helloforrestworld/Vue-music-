@@ -230,7 +230,67 @@ extensions: ['.js', '.vue', '.json', '.less'],
 ```
 *.player(播放器)组件封装
 ```
-
+    state(vuex):
+        playing: false // 播放状态
+        fullScreen: false // 是否全屏
+        playlist: [] // 播放列表
+        sequenceList: [] // 顺序列表
+        mode: 'random'/'sequence'/'loop' // 播放模式
+        currentIndex: -1 // 播放index
+    getters： currentSong(state){return state.playlist[state.currentIndex]}
+    mutations: 每个state对应的修改方法
+    
+    
+    播放器过渡效果
+        全屏播放器:
+            &.normal-enter-active, &.normal-leave-active{
+              transition: all 0.4s;
+              .top, .bottom{
+                transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32);
+              }
+            }
+            &.normal-enter, &.normal-leave-to{
+              opacity: 0;
+              .top{
+                transform: translate3d(0, -100px, 0);
+              }
+              .bottom{
+                transform: translate3d(0, 100px, 0);
+              }
+            }
+            
+            另外cdWrapper还有一个 从 迷你播放器icon进入 先放大再缩小的过程, 这个过程通过transitions的js钩子里 引入 create-keyframe-animtion实现
+        
+        迷你播放器：
+        &.mini-enter-active, &.mini-leave-active{
+          transition: all 0.4s;
+        }
+        &.mini-enter, &.mini-leave-to{
+          opacity: 0;
+        }
+    
+    关于迷你播放器圆环进度条实现原理
+        1.引入svg <circle>标签
+        2.两个circle fill都为透明 里面放入真正的按钮
+        3.一个circle作为bg 另一个则利用 stroke-dasharray  stroke-dashoffset按比例描边
+        4.dashArray: Math.PI * 100（100为viewbox宽度）
+        5.dashOffset() {
+            return (1 - this.percent) * this.dashArray;
+          }
+    
+    关于cd的旋转
+        1. 理想情况下直接通过css animation infinite 旋转就可以 
+        2. 暂定直接应用 animation-play-state: pause
+        3. 但是ios并不支持animition-play-state
+        解决办法:
+            1. 通过cd外层容器记录旋转角度
+            2. 每次移除animition时记录旋转角度
+            3. 开始旋转前将外层容器旋转到相应的角度
+    
+    关于ios safari 和 微信浏览器 audio无法播放歌曲的问题
+        1. 如果在微信浏览器, 需要在 WeixinJSBridgeReady 后 动态添加audio标签
+        2. 如果在safari, 只能在用用户点击文档后动态添加audio标签
+    
 ```
 *.css前缀补全函数prefixStyle
 ```
@@ -258,6 +318,35 @@ extensions: ['.js', '.vue', '.json', '.less'],
         }
         return vendor + style.substr(0,1).toUpperCase + style.substr(1)
     }
+```
+*. 随机播放算法
+```
+    function getRomdomInt(min, max) { // 生成min - max 的随机整数
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+    
+    export function shuffle(arr) { // 随机打乱数组
+      let _arr = arr.slice();
+      for (let i = 0; i < _arr.length; i++) {
+        let randomI = getRomdomInt(0, i);
+        [_arr[i], _arr[randomI]] = [_arr[randomI], _arr[i]];
+      };
+      return _arr;
+    };
+```
+*.截留函数封装(搜索模块用到)
+```
+    export function debounce(fn, delay) { // 截流函数
+      let timer;
+      return function(...args) {
+        if (timer) {
+          clearTimeout(timer);
+        };
+        timer = setTimeout(() => {
+          fn.apply(this, args);
+        }, delay);
+      };
+    };
 ```
 *. jsonp Promise版封装
 ```

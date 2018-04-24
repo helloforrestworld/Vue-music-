@@ -3,7 +3,7 @@ import {playMode} from 'common/js/config';
 import {shuffle} from 'common/js/utils';
 import {saveSearch, deleteSearch, clearSearch, savePlay, saveFavorite, deleteFavorite} from 'common/js/cache';
 
-export const selectPlay = ({commit, state}, {list, index}) => {
+export const selectPlay = ({commit, state}, {list, index}) => { // 播放整个列表
   let playlist = list;
   if (state.mode === playMode.random) {
     playlist = shuffle(list);
@@ -25,7 +25,7 @@ export const selectAllRandom = ({commit}, {list}) => { // 随机播放全部
   commit(types.SET_PLAYING_STATE, true);
 };
 
-export const insertSong = ({commit, state}, song) => {
+export const insertSong = ({commit, state}, song) => { // 在播放列表中插入一首歌曲
   let playlist = state.playlist.slice();
   let sequenceList = state.sequenceList.slice();
   let currentIndex = state.currentIndex;

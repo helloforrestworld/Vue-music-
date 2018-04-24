@@ -318,6 +318,7 @@ export default {
     open() { // 从mini-player呼出normal-player
       this.setFullScreen(true);
     },
+    // 播放器动画钩子
     enter(el, done) {
       let cdWrapper = this.$refs.cdWrapper;
       let {x, y, scale} = this._getPosAndScale();
