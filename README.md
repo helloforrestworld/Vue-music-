@@ -98,7 +98,7 @@ npm run build --report
 
 ```
 ### 组件关系图
-
+![组件][4]
 ### 总结
 #### 准备工作
 *. icomoon制作字体图标
@@ -522,6 +522,8 @@ extensions: ['.js', '.vue', '.json', '.less'],
 ### 参考
 > 慕课网黄佚老师Vue Music App
 
+
   [1]: https://ws1.sinaimg.cn/large/e8323205gy1fqkjptsymkg20qk0hkx6p.jpg
   [2]: https://ws1.sinaimg.cn/large/e8323205gy1fqkknfftvog20qi0hkx6s.jpg
   [3]: https://ws1.sinaimg.cn/large/e8323205gy1fqkkiz79q2g20qi0hkb2a.jpg
+  [4]: https://ws1.sinaimg.cn/large/e8323205gy1fqoc72qbdmj21451bjtbc.jpg
