@@ -112,12 +112,12 @@ npm run build --report
 *. babel-runtime babel-ployfill  // es6一些API polyfill
 
 *. fastclick
-```
+```javascript
     import fastclick from 'fastclick'; // 消除移动端点击延迟
     fastclick.attach(document.body);
 ```
 *. vue-lazyload // 图片懒加载
-```
+```javascript
     Vue.use(VueLazyLoad, {
       loading: require('common/image/default.png')
     });
@@ -126,7 +126,7 @@ npm run build --report
 > src => api base common components router store
 
 *. webpack配置别名路径
-```
+```javascript
 extensions: ['.js', '.vue', '.json', '.less'],
     alias: {
       '@': resolve('src'),
@@ -139,7 +139,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
 
 #### 知识点
 *. slider基础组件封装
-```
+```javascript
 // 基于better-scroll
     props: 
       1.loop 是否无缝
@@ -154,7 +154,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
       5.组件初始化：mouted时初始化 resize时 重新计算宽度 this.slider.refresh()
 ```
 *. scroll基础组件封装
-```
+```javascript
 // 基于better-scroll
     props: 
       1.probeType 滚动监听的间隔 默认为1 一定时间间隔监听滚动
@@ -182,7 +182,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
 
 ```
 *. listview(歌手列表)基础组件封装
-```
+```javascript
     // 基于封装的scroll组件
     // proboType = 3 实时监控滚动位置 左右结构对应
     
@@ -204,7 +204,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
         3.当 height[index] - nowY <= 列表头的高度时  固定的列表头往上偏移
 ```
 *. music-list(歌手/歌单 详情列表)和song-list(music-list子组件)基础组件封装
-```
+```javascript
   music-list 实现细节
     1. bgimage层 因为请求图片是异步的 所以可以height:0 width:100% padding-top：70%预留位置
     2. list下拉图片放大 上滑覆盖图片 并且有最小值
@@ -231,7 +231,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
         5.后面按序号
 ```
 *.player(播放器)组件封装
-```
+```javascript
     state(vuex):
         playing: false // 播放状态
         fullScreen: false // 是否全屏
@@ -295,7 +295,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
     
 ```
 *.css前缀补全函数prefixStyle
-```
+```javascript
     let eleStyle = document.createElement('div').style;
     let o = {
         webkit: 'webkitTransform',
@@ -322,7 +322,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
     }
 ```
 *. 随机播放算法
-```
+```javascript
     function getRomdomInt(min, max) { // 生成min - max 的随机整数
       return Math.floor(Math.random() * (max - min + 1) + min);
     };
@@ -337,7 +337,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
     };
 ```
 *.截留函数封装(搜索模块用到)
-```
+```javascript
     export function debounce(fn, delay) { // 截流函数
       let timer;
       return function(...args) {
@@ -351,7 +351,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
     };
 ```
 *. jsonp Promise版封装
-```
+```javascript
     import originJsonp from 'jsonp'
     export function jsonp(url, data, options) {
         url = (url.indexOf('?') < 0 ? '?' : '') + params(data)
@@ -375,7 +375,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
     }
 ```
 *.小细节
-```
+```javascript
     1. 幻灯片图片加载进来后刷新外层scroll
     <img @load="loadImage" :src="item.picUrl">
     loadImage() { // 图片渲染后撑开刷新scroll
@@ -387,7 +387,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
     2. better-scroll需要在宽高变化时refresh
 ```
 *.api处理
-```
+```javascript
  // qq音乐某些接口可以直接通过jsonp获取
  // 某些接口做了限制，需要后端代理
  
