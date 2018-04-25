@@ -155,7 +155,7 @@ extensions: ['.js', '.vue', '.json', '.less'],
 ```
 *. scroll基础组件封装
 ```javascript
-// 基于better-scroll
+// 基于better-scroll1
     props: 
       1.probeType 滚动监听的间隔 默认为1 一定时间间隔监听滚动
       2.click: 是否能点击
