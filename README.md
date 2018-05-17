@@ -103,31 +103,33 @@ npm run build --report
 ![组件][4]
 ### 总结
 #### 准备工作
-*. icomoon制作字体图标
-*. 基础less
-> a. 颜色规范
-> b. mixin
-> c. reset
-> d. icon
-      
-*. eslint规则改写
-*. babel-runtime babel-ployfill  // es6一些API polyfill
+1.icomoon制作字体图标
 
-*. fastclick
+2.基础less
+
+- a. 颜色规范
+- b. mixin
+- c. reset
+- d. icon
+      
+3.eslint规则改写
+babel-runtime babel-ployfill  // es6一些API polyfill
+
+4.fastclick
 ```javascript
     import fastclick from 'fastclick'; // 消除移动端点击延迟
     fastclick.attach(document.body);
 ```
-*. vue-lazyload // 图片懒加载
+5.vue-lazyload // 图片懒加载
 ```javascript
     Vue.use(VueLazyLoad, {
       loading: require('common/image/default.png')
     });
 ```
-*. 目录结构
+6.目录结构
 > src => api base common components router store
 
-*. webpack配置别名路径
+7.webpack配置别名路径
 ```javascript
 extensions: ['.js', '.vue', '.json', '.less'],
     alias: {
